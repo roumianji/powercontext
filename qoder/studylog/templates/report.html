@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}生成周报 - 研习周记{% endblock %}
+{% block content %}
+<h1>生成周报</h1>
+
+<div class="card">
+    <form method="post" action="{{ url_for('report') }}">
+        <div class="form-row">
+            <div>
+                <label for="date_from">起始日期</label>
+                <input type="date" id="date_from" name="date_from" value="{{ date_from }}">
+            </div>
+            <div>
+                <label for="date_to">截止日期</label>
+                <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">生成周报</button>
+    </form>
+</div>
+
+{% if logs %}
+<div class="toolbar">
+    <button class="btn btn-success" onclick="copyMarkdown()">复制 Markdown</button>
+    <a href="{{ url_for('report_download', date_from=date_from, date_to=date_to) }}" class="btn btn-secondary">下载 .md 文件</a>
+</div>
+
+<div class="card">
+    <h2>周报预览 ({{ date_from }} ~ {{ date_to }})</h2>
+    <p class="meta" style="margin-bottom:12px">共 {{ logs|length }} 条记录，{{ grouped|length }} 个项目</p>
+
+    {% for proj, proj_logs in grouped.items() %}
+    <h2>项目：{{ proj }}</h2>
+
+    <p style="margin:8px 0 4px"><strong>完成事项</strong></p>
+    <ul>
+        {% for log in proj_logs %}
+        <li><strong>{{ log.log_date }}</strong>：{{ log.completed }}</li>
+        {% endfor %}
+    </ul>
+
+    {% set problems = proj_logs | selectattr('problems') | list %}
+    {% if problems %}
+    <p style="margin:8px 0 4px"><strong>遇到的问题</strong></p>
+    <ul>
+        {% for log in problems %}
+        <li>{{ log.problems }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% set plans = proj_logs | selectattr('next_plan') | list %}
+    {% if plans %}
+    <p style="margin:8px 0 4px"><strong>下一步计划</strong></p>
+    <ul>
+        {% for log in plans %}
+        <li>{{ log.next_plan }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if not loop.last %}<hr style="margin:16px 0;border:none;border-top:1px solid #e5e7eb">{% endif %}
+    {% endfor %}
+</div>
+
+<div class="card">
+    <h2>Markdown 源码</h2>
+    <pre id="markdown-source">{{ markdown }}</pre>
+</div>
+
+<script>
+function copyMarkdown() {
+    const text = document.getElementById('markdown-source').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        btn.textContent = '已复制!';
+        setTimeout(() => btn.textContent = '复制 Markdown', 1500);
+    });
+}
+</script>
+{% elif request.method == 'POST' or request.args.get('date_from') %}
+<div class="card">
+    <p class="meta">所选日期范围内无记录。</p>
+</div>
+{% endif %}
+{% endblock %}

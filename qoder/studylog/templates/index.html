@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}查询记录 - 研习周记{% endblock %}
+{% block content %}
+<h1>查询研习记录</h1>
+
+<div class="card">
+    <form method="get" action="{{ url_for('index') }}">
+        <div class="form-row">
+            <div>
+                <label for="date_from">起始日期</label>
+                <input type="date" id="date_from" name="date_from" value="{{ filters.date_from }}">
+            </div>
+            <div>
+                <label for="date_to">截止日期</label>
+                <input type="date" id="date_to" name="date_to" value="{{ filters.date_to }}">
+            </div>
+            <div>
+                <label for="project">项目</label>
+                <select id="project" name="project">
+                    <option value="">全部项目</option>
+                    {% for p in projects %}
+                    <option value="{{ p }}" {{ 'selected' if p == filters.project }}>{{ p }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="keyword">关键词</label>
+                <input type="text" id="keyword" name="keyword" value="{{ filters.keyword }}" placeholder="搜索完成事项/问题/计划">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">筛选</button>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">重置</a>
+    </form>
+</div>
+
+{% if logs %}
+<div class="card">
+    <p class="meta" style="margin-bottom:12px">共 {{ logs|length }} 条记录</p>
+    <table>
+        <thead>
+            <tr>
+                <th>日期</th>
+                <th>项目</th>
+                <th>完成事项</th>
+                <th>遇到的问题</th>
+                <th>下一步计划</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.log_date }}</td>
+                <td><span class="tag">{{ log.project }}</span></td>
+                <td>{{ log.completed }}</td>
+                <td>{{ log.problems or '-' }}</td>
+                <td>{{ log.next_plan or '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card">
+    <p class="meta">暂无匹配记录。</p>
+</div>
+{% endif %}
+
+{% if db_info %}
+<p class="db-info">数据库: {{ db_info.engine }} | 版本: {{ db_info.version }}</p>
+{% endif %}
+{% endblock %}

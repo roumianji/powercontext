@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}新增记录 - 研习周记{% endblock %}
+{% block content %}
+<h1>新增研习记录</h1>
+
+<div class="card">
+    <form method="post" action="{{ url_for('add') }}">
+        <div class="form-row">
+            <div>
+                <label for="log_date">日期 *</label>
+                <input type="date" id="log_date" name="log_date" value="{{ form.get('log_date', today) }}" required>
+            </div>
+            <div>
+                <label for="project">所属项目 *</label>
+                <input type="text" id="project" name="project" value="{{ form.get('project', '') }}" placeholder="如：OceanBase 竞赛" required>
+            </div>
+        </div>
+
+        <label for="completed">完成事项 *</label>
+        <textarea id="completed" name="completed" placeholder="今天完成了什么？" required>{{ form.get('completed', '') }}</textarea>
+
+        <label for="problems">遇到的问题</label>
+        <textarea id="problems" name="problems" placeholder="遇到了哪些困难或阻塞？">{{ form.get('problems', '') }}</textarea>
+
+        <label for="next_plan">下一步计划</label>
+        <textarea id="next_plan" name="next_plan" placeholder="接下来打算做什么？">{{ form.get('next_plan', '') }}</textarea>
+
+        <div style="margin-top: 8px;">
+            <button type="submit" class="btn btn-primary">保存记录</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">取消</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
