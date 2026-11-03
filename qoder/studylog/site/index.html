@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>研习周记</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--p:#2563eb;--pd:#1d4ed8;--t:#1f2937;--tl:#6b7280;--bg:#fff;--bga:#f9fafb;--bd:#e5e7eb;--cbg:#f3f4f6;--ok:#059669;--err:#dc2626}
+        body{font-family:-apple-system,"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;color:var(--t);line-height:1.6;background:var(--bg)}
+        .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+        header{background:linear-gradient(135deg,#1e3a5f,var(--p));color:#fff;padding:32px 0;text-align:center}
+        header h1{font-size:26px;font-weight:700;margin-bottom:4px}
+        header p{font-size:14px;opacity:.85}
+        .badge{display:inline-block;background:rgba(255,255,255,.15);padding:2px 10px;border-radius:12px;font-size:12px;margin-bottom:10px}
+        .status{font-size:12px;margin-top:8px;padding:4px 12px;border-radius:12px;display:inline-block}
+        .status.ok{background:rgba(5,150,105,.2);color:#a7f3d0}
+        .status.err{background:rgba(220,38,38,.2);color:#fca5a5}
+        .status.off{background:rgba(107,114,128,.2);color:#d1d5db}
+        nav{background:var(--bg);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:10}
+        nav .wrap{display:flex;gap:2px;padding:6px 20px}
+        .tab{padding:8px 16px;border-radius:6px;font-size:14px;cursor:pointer;border:none;background:none;color:var(--tl);font-weight:500;transition:all .15s}
+        .tab:hover{color:var(--p);background:#eff6ff}
+        .tab.active{color:var(--p);background:#dbeafe}
+        main{padding:24px 0 48px}
+        .panel{display:none}
+        .panel.active{display:block}
+        h2{font-size:18px;font-weight:600;margin-bottom:16px;padding-bottom:6px;border-bottom:2px solid var(--p);display:inline-block}
+        .filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;align-items:end}
+        .fg{display:flex;flex-direction:column;gap:3px}
+        .fg label{font-size:12px;color:var(--tl);font-weight:500}
+        .fg input,.fg select{padding:7px 10px;border:1px solid var(--bd);border-radius:6px;font-size:13px;min-width:140px}
+        .fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 2px rgba(37,99,235,.15)}
+        .btn{padding:8px 18px;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+        .btn-p{background:var(--p);color:#fff}
+        .btn-p:hover{background:var(--pd)}
+        .btn-s{background:var(--cbg);color:var(--t);border:1px solid var(--bd)}
+        .btn-s:hover{background:#e5e7eb}
+        .btn:disabled{opacity:.5;cursor:not-allowed}
+        table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+        th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--bd)}
+        th{background:var(--bga);font-weight:600;font-size:12px;color:var(--tl)}
+        tr:hover td{background:#fafbfc}
+        .empty{text-align:center;padding:32px;color:var(--tl);font-size:14px}
+        .form-grid{display:grid;gap:14px;max-width:560px}
+        .form-grid .fg{width:100%}
+        .form-grid textarea{padding:7px 10px;border:1px solid var(--bd);border-radius:6px;font-size:13px;font-family:inherit;min-height:70px;resize:vertical}
+        .msg{padding:10px 14px;border-radius:6px;font-size:13px;margin:12px 0}
+        .msg-ok{background:#d1fae5;color:#065f46;border:1px solid #a7f3d0}
+        .msg-err{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+        .msg-info{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
+        .report-box{background:var(--cbg);border:1px solid var(--bd);border-radius:8px;padding:16px;font-size:13px;white-space:pre-wrap;font-family:"JetBrains Mono","Fira Code",monospace;line-height:1.5;max-height:500px;overflow-y:auto;margin-top:12px}
+        .report-actions{display:flex;gap:8px;margin-top:12px}
+        .cfg-section{background:var(--bga);border:1px solid var(--bd);border-radius:8px;padding:16px;margin-bottom:16px;max-width:560px}
+        .cfg-section h3{font-size:15px;font-weight:600;margin-bottom:10px}
+        .cfg-row{display:flex;gap:10px;align-items:end;margin-bottom:10px}
+        .cfg-row .fg{flex:1}
+        .tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+        .tag-b{background:#dbeafe;color:#1e40af}
+        .loading{text-align:center;padding:20px;color:var(--tl)}
+        @media(max-width:640px){header{padding:24px 0}header h1{font-size:22px}.filters{flex-direction:column}.fg input,.fg select{min-width:100%}nav .wrap{overflow-x:auto}}
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="wrap">
+        <div class="badge">OceanBase 竞赛作品</div>
+        <h1>研习周记</h1>
+        <p>基于 seekdb 的学习记录工具</p>
+        <div id="healthStatus" class="status off">未连接</div>
+    </div>
+</header>
+
+<nav>
+    <div class="wrap">
+        <button class="tab active" data-tab="query">查询记录</button>
+        <button class="tab" data-tab="add">新增记录</button>
+        <button class="tab" data-tab="report">生成周报</button>
+        <button class="tab" data-tab="config">设置</button>
+    </div>
+</nav>
+
+<main>
+<div class="wrap">
+
+<div id="panel-query" class="panel active">
+    <h2>查询记录</h2>
+    <div class="filters">
+        <div class="fg"><label>起始日期</label><input type="date" id="qDateFrom"></div>
+        <div class="fg"><label>结束日期</label><input type="date" id="qDateTo"></div>
+        <div class="fg"><label>项目</label><select id="qProject"><option value="">全部</option></select></div>
+        <div class="fg"><label>关键词</label><input type="text" id="qKeyword" placeholder="搜索..."></div>
+        <button class="btn btn-p" onclick="loadLogs()">查询</button>
+        <button class="btn btn-s" onclick="clearFilters()">重置</button>
+    </div>
+    <div id="queryResult"><div class="empty">请输入筛选条件后点击查询</div></div>
+</div>
+
+<div id="panel-add" class="panel">
+    <h2>新增记录</h2>
+    <div id="addMsg"></div>
+    <div class="form-grid">
+        <div class="fg"><label>日期 *</label><input type="date" id="aDate" required></div>
+        <div class="fg"><label>项目 *</label><input type="text" id="aProject" placeholder="例如：OceanBase 竞赛" list="projectList" required><datalist id="projectList"></datalist></div>
+        <div class="fg"><label>完成事项 *</label><textarea id="aCompleted" placeholder="今天完成了什么..." required></textarea></div>
+        <div class="fg"><label>遇到的问题</label><textarea id="aProblems" placeholder="遇到了什么困难..."></textarea></div>
+        <div class="fg"><label>下一步计划</label><textarea id="aNextPlan" placeholder="接下来打算..."></textarea></div>
+        <div><button class="btn btn-p" id="addBtn" onclick="submitLog()">保存记录</button></div>
+    </div>
+</div>
+
+<div id="panel-report" class="panel">
+    <h2>生成周报</h2>
+    <div class="filters">
+        <div class="fg"><label>起始日期</label><input type="date" id="rDateFrom"></div>
+        <div class="fg"><label>结束日期</label><input type="date" id="rDateTo"></div>
+        <button class="btn btn-p" onclick="generateReport()">生成周报</button>
+    </div>
+    <div id="reportMsg"></div>
+    <div id="reportResult"></div>
+</div>
+
+<div id="panel-config" class="panel">
+    <h2>设置</h2>
+    <div class="cfg-section">
+        <h3>API 连接配置</h3>
+        <div class="cfg-row"><div class="fg"><label>后端 API 地址</label><input type="text" id="cfgApi" placeholder="http://127.0.0.1:5100"></div></div>
+        <div class="cfg-row"><div class="fg"><label>API Key（写入操作需要）</label><input type="password" id="cfgKey" placeholder="留空表示未设置"></div></div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+            <button class="btn btn-p" onclick="saveConfig()">保存配置</button>
+            <button class="btn btn-s" onclick="testConnection()">测试连接</button>
+        </div>
+        <div id="cfgMsg"></div>
+    </div>
+    <div class="cfg-section">
+        <h3>数据库信息</h3>
+        <div id="dbInfo"><span class="empty" style="padding:8px">点击"测试连接"查看</span></div>
+    </div>
+</div>
+
+</div>
+</main>
+
+<script>
+(function(){
+    function base(){ return (localStorage.getItem('sl_api') || '').replace(/\/+$/,''); }
+    function key(){ return localStorage.getItem('sl_key') || ''; }
+
+    async function api(path, opts){
+        opts = opts || {};
+        var url = base() + path;
+        var headers = {};
+        if(opts.headers) Object.assign(headers, opts.headers);
+        var k = key();
+        if(k) headers['X-API-Key'] = k;
+        if(opts.body && typeof opts.body === 'object'){
+            headers['Content-Type'] = 'application/json';
+            opts.body = JSON.stringify(opts.body);
+        }
+        var resp = await fetch(url, Object.assign({}, opts, {headers: headers}));
+        var ct = resp.headers.get('content-type') || '';
+        if(!resp.ok){
+            var txt = resp.statusText;
+            if(ct.indexOf('json') >= 0){
+                try{ var j = await resp.json(); txt = j.error || txt; } catch(e){}
+            }
+            throw new Error(txt);
+        }
+        return resp.json();
+    }
+
+    function esc(s){
+        var d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    document.querySelectorAll('.tab').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+            document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+            btn.classList.add('active');
+            document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    window.checkHealth = async function(){
+        var el = document.getElementById('healthStatus');
+        try{
+            var r = await api('/health');
+            if(r.status === 'healthy'){
+                el.textContent = '\u5df2\u8fde\u63a5 \u00b7 ' + r.record_count + ' \u6761\u8bb0\u5f55';
+                el.className = 'status ok';
+            } else {
+                el.textContent = '\u5f02\u5e38';
+                el.className = 'status err';
+            }
+            return r;
+        } catch(e){
+            el.textContent = '\u672a\u8fde\u63a5';
+            el.className = 'status off';
+            return null;
+        }
+    };
+
+    window.loadProjects = async function(){
+        try{
+            var r = await api('/api/projects');
+            if(r.ok){
+                var sel = document.getElementById('qProject');
+                var dl = document.getElementById('projectList');
+                sel.innerHTML = '<option value="">\u5168\u90e8</option>';
+                dl.innerHTML = '';
+                r.data.forEach(function(p){
+                    sel.innerHTML += '<option value="' + esc(p) + '">' + esc(p) + '</option>';
+                    dl.innerHTML += '<option value="' + esc(p) + '">';
+                });
+            }
+        } catch(e){}
+    };
+
+    window.loadLogs = async function(){
+        var el = document.getElementById('queryResult');
+        el.innerHTML = '<div class="loading">\u52a0\u8f7d\u4e2d...</div>';
+        var params = new URLSearchParams();
+        var df = document.getElementById('qDateFrom').value;
+        var dt = document.getElementById('qDateTo').value;
+        var pj = document.getElementById('qProject').value;
+        var kw = document.getElementById('qKeyword').value.trim();
+        if(df) params.set('date_from', df);
+        if(dt) params.set('date_to', dt);
+        if(pj) params.set('project', pj);
+        if(kw) params.set('keyword', kw);
+        try{
+            var r = await api('/api/logs?' + params.toString());
+            if(r.ok){
+                if(r.data.length === 0){
+                    el.innerHTML = '<div class="empty">\u6ca1\u6709\u627e\u5230\u5339\u914d\u7684\u8bb0\u5f55</div>';
+                    return;
+                }
+                var html = '<table><thead><tr><th>ID</th><th>\u65e5\u671f</th><th>\u9879\u76ee</th><th>\u5b8c\u6210\u4e8b\u9879</th><th>\u95ee\u9898</th><th>\u8ba1\u5212</th></tr></thead><tbody>';
+                r.data.forEach(function(log){
+                    html += '<tr>';
+                    html += '<td>' + esc(String(log.id)) + '</td>';
+                    html += '<td>' + esc(log.log_date || '') + '</td>';
+                    html += '<td><span class="tag tag-b">' + esc(log.project || '') + '</span></td>';
+                    html += '<td>' + esc(log.completed || '') + '</td>';
+                    html += '<td>' + esc(log.problems || '-') + '</td>';
+                    html += '<td>' + esc(log.next_plan || '-') + '</td>';
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                html += '<div style="margin-top:8px;font-size:12px;color:var(--tl)">\u5171 ' + r.count + ' \u6761\u8bb0\u5f55</div>';
+                el.innerHTML = html;
+            }
+        } catch(e){
+            el.innerHTML = '<div class="msg msg-err">\u8bf7\u6c42\u5931\u8d25: ' + esc(e.message) + '</div>';
+        }
+    };
+
+    window.clearFilters = function(){
+        document.getElementById('qDateFrom').value = '';
+        document.getElementById('qDateTo').value = '';
+        document.getElementById('qProject').value = '';
+        document.getElementById('qKeyword').value = '';
+        document.getElementById('queryResult').innerHTML = '<div class="empty">\u8bf7\u8f93\u5165\u7b5b\u9009\u6761\u4ef6\u540e\u70b9\u51fb\u67e5\u8be2</div>';
+    };
+
+    window.submitLog = async function(){
+        var msgEl = document.getElementById('addMsg');
+        var btn = document.getElementById('addBtn');
+        var d = document.getElementById('aDate').value;
+        var p = document.getElementById('aProject').value.trim();
+        var c = document.getElementById('aCompleted').value.trim();
+        var pr = document.getElementById('aProblems').value.trim();
+        var n = document.getElementById('aNextPlan').value.trim();
+        if(!d || !p || !c){
+            msgEl.innerHTML = '<div class="msg msg-err">\u65e5\u671f\u3001\u9879\u76ee\u548c\u5b8c\u6210\u4e8b\u9879\u4e3a\u5fc5\u586b\u9879</div>';
+            return;
+        }
+        btn.disabled = true;
+        btn.textContent = '\u4fdd\u5b58\u4e2d...';
+        try{
+            var r = await api('/api/logs', {method:'POST', body:{log_date:d, project:p, completed:c, problems:pr, next_plan:n}});
+            if(r.ok){
+                msgEl.innerHTML = '<div class="msg msg-ok">' + esc(r.message) + '</div>';
+                document.getElementById('aCompleted').value = '';
+                document.getElementById('aProblems').value = '';
+                document.getElementById('aNextPlan').value = '';
+                loadProjects();
+                checkHealth();
+            }
+        } catch(e){
+            if(e.message === 'Unauthorized'){
+                msgEl.innerHTML = '<div class="msg msg-err">\u9700\u8981 API Key\uff0c\u8bf7\u5728\u201c\u8bbe\u7f6e\u201d\u4e2d\u914d\u7f6e</div>';
+            } else {
+                msgEl.innerHTML = '<div class="msg msg-err">\u8bf7\u6c42\u5931\u8d25: ' + esc(e.message) + '</div>';
+            }
+        }
+        btn.disabled = false;
+        btn.textContent = '\u4fdd\u5b58\u8bb0\u5f55';
+    };
+
+    window.generateReport = async function(){
+        var msgEl = document.getElementById('reportMsg');
+        var resEl = document.getElementById('reportResult');
+        var df = document.getElementById('rDateFrom').value;
+        var dt = document.getElementById('rDateTo').value;
+        if(!df || !dt){
+            msgEl.innerHTML = '<div class="msg msg-err">\u8bf7\u9009\u62e9\u65e5\u671f\u8303\u56f4</div>';
+            resEl.innerHTML = '';
+            return;
+        }
+        resEl.innerHTML = '<div class="loading">\u751f\u6210\u4e2d...</div>';
+        msgEl.innerHTML = '';
+        try{
+            var r = await api('/api/report?date_from=' + encodeURIComponent(df) + '&date_to=' + encodeURIComponent(dt));
+            if(r.ok){
+                msgEl.innerHTML = '<div class="msg msg-ok">\u5171 ' + r.count + ' \u6761\u8bb0\u5f55</div>';
+                var md = r.markdown || '';
+                var html = '<div class="report-box" id="mdBox">' + esc(md) + '</div>';
+                html += '<div class="report-actions">';
+                html += '<button class="btn btn-p" onclick="copyMd()">\u590d\u5236 Markdown</button>';
+                html += '<button class="btn btn-s" onclick="downloadMd()">\u4e0b\u8f7d .md \u6587\u4ef6</button>';
+                html += '</div>';
+                resEl.innerHTML = html;
+                resEl.dataset.md = md;
+            }
+        } catch(e){
+            msgEl.innerHTML = '<div class="msg msg-err">\u8bf7\u6c42\u5931\u8d25: ' + esc(e.message) + '</div>';
+            resEl.innerHTML = '';
+        }
+    };
+
+    window.copyMd = function(){
+        var md = document.getElementById('reportResult').dataset.md || '';
+        navigator.clipboard.writeText(md).then(function(){
+            var btn = event.target;
+            var orig = btn.textContent;
+            btn.textContent = '\u5df2\u590d\u5236!';
+            setTimeout(function(){btn.textContent = orig;}, 1500);
+        });
+    };
+
+    window.downloadMd = function(){
+        var md = document.getElementById('reportResult').dataset.md || '';
+        var df = document.getElementById('rDateFrom').value;
+        var dt = document.getElementById('rDateTo').value;
+        var blob = new Blob([md], {type:'text/markdown;charset=utf-8'});
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'weekly_report_' + df + '_' + dt + '.md';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    };
+
+    window.saveConfig = function(){
+        var url = document.getElementById('cfgApi').value.trim();
+        var k = document.getElementById('cfgKey').value.trim();
+        localStorage.setItem('sl_api', url);
+        localStorage.setItem('sl_key', k);
+        document.getElementById('cfgMsg').innerHTML = '<div class="msg msg-ok">\u914d\u7f6e\u5df2\u4fdd\u5b58</div>';
+        checkHealth();
+        loadProjects();
+    };
+
+    window.testConnection = async function(){
+        var msgEl = document.getElementById('cfgMsg');
+        var infoEl = document.getElementById('dbInfo');
+        msgEl.innerHTML = '<div class="msg msg-info">\u6d4b\u8bd5\u4e2d...</div>';
+        try{
+            var r = await api('/health');
+            if(r.status === 'healthy'){
+                msgEl.innerHTML = '<div class="msg msg-ok">\u8fde\u63a5\u6210\u529f</div>';
+                var db = r.database || {};
+                infoEl.innerHTML = '<table>' +
+                    '<tr><td><strong>\u5f15\u64ce</strong></td><td>' + esc(db.engine || 'seekdb') + '</td></tr>' +
+                    '<tr><td><strong>\u7248\u672c</strong></td><td>' + esc(db.version || '') + '</td></tr>' +
+                    '<tr><td><strong>\u8bb0\u5f55\u6570</strong></td><td>' + r.record_count + '</td></tr>' +
+                    '</table>';
+            } else {
+                msgEl.innerHTML = '<div class="msg msg-err">\u8fde\u63a5\u5f02\u5e38: ' + esc(r.error || 'unknown') + '</div>';
+            }
+        } catch(e){
+            msgEl.innerHTML = '<div class="msg msg-err">\u8fde\u63a5\u5931\u8d25: ' + esc(e.message) + '</div>';
+            infoEl.innerHTML = '<span class="empty" style="padding:8px">\u65e0\u6cd5\u8fde\u63a5\u5230\u540e\u7aef</span>';
+        }
+    };
+
+    function init(){
+        var today = new Date();
+        var mon = new Date(today);
+        mon.setDate(today.getDate() - today.getDay() + 1);
+        var iso = function(d){ return d.toISOString().slice(0,10); };
+        document.getElementById('aDate').value = iso(today);
+        document.getElementById('rDateFrom').value = iso(mon);
+        document.getElementById('rDateTo').value = iso(today);
+
+        var saved = localStorage.getItem('sl_api');
+        if(saved){
+            document.getElementById('cfgApi').value = saved;
+        } else {
+            var origin = window.location.origin;
+            document.getElementById('cfgApi').value = origin;
+            localStorage.setItem('sl_api', origin);
+        }
+        var savedKey = localStorage.getItem('sl_key');
+        if(savedKey) document.getElementById('cfgKey').value = savedKey;
+
+        checkHealth();
+        loadProjects();
+    }
+
+    if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>
+
+</body>
+</html>

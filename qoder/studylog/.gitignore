@@ -1,4 +1,37 @@
+# Python
 .venv/
-data/*.seekdb
+test_env/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+
+# 数据库文件
+data/*.seekdb
+data/*.seekdb-journal
+data/*.seekdb-wal
+data/*.seekdb-shm
+
+# 日志
+*.log
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.bak
+prepare_input.json
+access_input.json
+
+# Qoder 本地配置
+.qoder/
