@@ -1,0 +1,31 @@
+{
+  "started_at_utc": "2026-11-03T03:31:27.946955+00:00",
+  "finished_at_utc": "2026-11-03T03:31:28.062209+00:00",
+  "command": [
+    "/home/research/coursework/ob2026-powercontext/minimax/.venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_regression"
+  ],
+  "working_directory": "/home/research/coursework/ob2026-powercontext/minimax",
+  "exit_code": 0,
+  "python_version": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "git_head": "360117274ead7cc1bb489493ed28b84a65421978",
+  "code_version": "85d3416603dbff9aa23a0488f2faf325094c67a636f354d2877a310de600dedd",
+  "note": "code_version hashes the delivered working-tree files; git_head alone may predate uncommitted files",
+  "file_sha256": {
+    "demo_app/__init__.py": "84f1bebe06fcf033cc0ebcdd9a7256b077efbad89eaf0144aa61b1db6a1bf910",
+    "demo_app/__main__.py": "749ef8d62779797c12b28cf49fda4fa52c5da9a08818b07bcefefe3888e7e086",
+    "demo_app/service.py": "7f7aa8eda2d864d4dc87713cd7a5d083d05b7c5171fef7a967fc91f8b8298e2f",
+    "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/test_regression.py": "e4caa562ff5d6910733f7607508935fd4d4210bbed6638e99ea609488e2f23bc",
+    "tests/test_target.py": "2286a9111c6e848432a87dfa4ee6a8dd1c74f9d7aeaacf077d15e451e09cfd1e",
+    "specs/task_list.md": "e8346c5c5ac31855ad5d92d680dee5cce22435467ba0fbf6354bb331bc32fcb6",
+    "data/tasks.json": "756fd85184b7145457b4366cbd396bb0f7eb5f2833553f31d3b131d6872f5e77",
+    "tools/run_tests.py": "f6921cf44b8710b930d45e5aef99eeb4a1cc14683629fb9f8ff13792028b0465"
+  },
+  "suite": "regression",
+  "label": "after",
+  "output": "test_blank_keyword (tests.test_regression.ExistingBehaviorTests.test_blank_keyword) ... ok\ntest_blank_title_rejected (tests.test_regression.ExistingBehaviorTests.test_blank_title_rejected) ... ok\ntest_change_status (tests.test_regression.ExistingBehaviorTests.test_change_status) ... ok\ntest_create (tests.test_regression.ExistingBehaviorTests.test_create) ... ok\ntest_default_list_keeps_order (tests.test_regression.ExistingBehaviorTests.test_default_list_keeps_order) ... ok\ntest_delete (tests.test_regression.ExistingBehaviorTests.test_delete) ... ok\ntest_invalid_status_update_rejected (tests.test_regression.ExistingBehaviorTests.test_invalid_status_update_rejected) ... ok\ntest_keyword_is_case_insensitive (tests.test_regression.ExistingBehaviorTests.test_keyword_is_case_insensitive) ... ok\ntest_results_do_not_expose_internal_state (tests.test_regression.ExistingBehaviorTests.test_results_do_not_expose_internal_state) ... ok\ntest_title_keyword (tests.test_regression.ExistingBehaviorTests.test_title_keyword) ... ok\n\n----------------------------------------------------------------------\nRan 10 tests in 0.005s\n\nOK\n"
+}

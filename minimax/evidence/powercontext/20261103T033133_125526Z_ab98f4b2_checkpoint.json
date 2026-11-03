@@ -1,0 +1,129 @@
+{
+  "started_at_utc": "2026-11-03T03:31:33.125567+00:00",
+  "command": [
+    "/home/research/coursework/ob2026-powercontext/minimax/.venv/bin/python",
+    "-m",
+    "task_state",
+    "--task-id",
+    "status-filter-v1",
+    "checkpoint",
+    "--phase",
+    "after"
+  ],
+  "process_id": 12839,
+  "process_instance_id": "ab98f4b2de554b1bbaf0b0c780d8a9a6",
+  "working_directory": "/home/research/coursework/ob2026-powercontext/minimax",
+  "state_database": "/home/research/coursework/ob2026-powercontext/minimax/.runtime/powercontext.sqlite3",
+  "task_id": "status-filter-v1",
+  "module_version": "0.1.0",
+  "exit_code": 0,
+  "powercontext_version": "1.4.1",
+  "operation": "AtomicMemory.create",
+  "state": {
+    "schema": "minimax-task-state-v1",
+    "task_id": "status-filter-v1",
+    "phase": "after",
+    "saved_at_utc": "2026-11-03T03:31:33.146222+00:00",
+    "saved_process_id": 12839,
+    "saved_process_instance_id": "ab98f4b2de554b1bbaf0b0c780d8a9a6",
+    "task": "给任务列表增加 status 筛选，保持原有功能",
+    "project_revision": "75397b47301cd44ac6d251a7298a00a456dafbe653322089154febfae4769e79",
+    "completed": [
+      "工程资料已导入 seekdb",
+      "已查询并构造开发上下文",
+      "修改后目标测试通过",
+      "修改后回归测试通过"
+    ],
+    "pending": [
+      "核对 MiniMax 修改记录",
+      "验证规格更新并重新导入",
+      "整理提交材料"
+    ],
+    "validation_results": [
+      {
+        "suite": "regression",
+        "phase": "after",
+        "exit_code": 0,
+        "code_version": "85d3416603dbff9aa23a0488f2faf325094c67a636f354d2877a310de600dedd",
+        "summary": [
+          "Ran 10 tests in 0.005s",
+          "OK"
+        ],
+        "log": {
+          "source_path": "evidence/after/regression_20261103T033128_062453Z.json",
+          "sha256": "61e07127adb03ce845cac9ae9e9a76c1a124fe67c4d39b510923e715e410c624"
+        }
+      },
+      {
+        "suite": "target",
+        "phase": "after",
+        "exit_code": 0,
+        "code_version": "85d3416603dbff9aa23a0488f2faf325094c67a636f354d2877a310de600dedd",
+        "summary": [
+          "Ran 6 tests in 0.004s",
+          "OK"
+        ],
+        "log": {
+          "source_path": "evidence/after/target_20261103T033127_860561Z.json",
+          "sha256": "2a7d07da50bc9a675d6f2fd8278a1ad4ccb919b1078053d1935de7acf2c30e22"
+        }
+      }
+    ],
+    "receipts": {
+      "context": {
+        "source_path": "evidence/context/20261103T033130_707001Z_0f07649a.json",
+        "sha256": "a4449a1599fdbe68eb19134481903e85af4613bb979fcaabf37836affd965650"
+      },
+      "database_query": {
+        "source_path": "evidence/database/20261103T033130_707001Z_0f07649a_context.json",
+        "sha256": "2d2ed84d457b3a3b99beb5a8e2795d834212c359f57c2921ba60d506983e3783"
+      }
+    }
+  },
+  "powercontext": {
+    "scope_id": "scp_42wa24sxr63qcd6phrjr6rb8z3",
+    "reference": {
+      "family": "atomic-memory",
+      "artifact_id": "art_0bb8c9adec3a489ca736eb405a2d0162",
+      "revision": 1
+    },
+    "previous_matching_states": 1,
+    "sdk_response": {
+      "changed": true,
+      "records": [
+        {
+          "artifact": {
+            "artifact_id": "art_0bb8c9adec3a489ca736eb405a2d0162",
+            "revision": 1,
+            "content": {
+              "schema": "powercontext.atomic-memory.v1",
+              "kind": "minimax-task-state",
+              "text": "{\"schema\":\"minimax-task-state-v1\",\"task_id\":\"status-filter-v1\",\"phase\":\"after\",\"saved_at_utc\":\"2026-11-03T03:31:33.146222+00:00\",\"saved_process_id\":12839,\"saved_process_instance_id\":\"ab98f4b2de554b1bbaf0b0c780d8a9a6\",\"task\":\"给任务列表增加 status 筛选，保持原有功能\",\"project_revision\":\"75397b47301cd44ac6d251a7298a00a456dafbe653322089154febfae4769e79\",\"completed\":[\"工程资料已导入 seekdb\",\"已查询并构造开发上下文\",\"修改后目标测试通过\",\"修改后回归测试通过\"],\"pending\":[\"核对 MiniMax 修改记录\",\"验证规格更新并重新导入\",\"整理提交材料\"],\"validation_results\":[{\"suite\":\"regression\",\"phase\":\"after\",\"exit_code\":0,\"code_version\":\"85d3416603dbff9aa23a0488f2faf325094c67a636f354d2877a310de600dedd\",\"summary\":[\"Ran 10 tests in 0.005s\",\"OK\"],\"log\":{\"source_path\":\"evidence/after/regression_20261103T033128_062453Z.json\",\"sha256\":\"61e07127adb03ce845cac9ae9e9a76c1a124fe67c4d39b510923e715e410c624\"}},{\"suite\":\"target\",\"phase\":\"after\",\"exit_code\":0,\"code_version\":\"85d3416603dbff9aa23a0488f2faf325094c67a636f354d2877a310de600dedd\",\"summary\":[\"Ran 6 tests in 0.004s\",\"OK\"],\"log\":{\"source_path\":\"evidence/after/target_20261103T033127_860561Z.json\",\"sha256\":\"2a7d07da50bc9a675d6f2fd8278a1ad4ccb919b1078053d1935de7acf2c30e22\"}}],\"receipts\":{\"context\":{\"source_path\":\"evidence/context/20261103T033130_707001Z_0f07649a.json\",\"sha256\":\"a4449a1599fdbe68eb19134481903e85af4613bb979fcaabf37836affd965650\"},\"database_query\":{\"source_path\":\"evidence/database/20261103T033130_707001Z_0f07649a_context.json\",\"sha256\":\"2d2ed84d457b3a3b99beb5a8e2795d834212c359f57c2921ba60d506983e3783\"}}}",
+              "creation": null
+            },
+            "lineage": {
+              "sources": [
+                {
+                  "source_type": "content",
+                  "source_id": "src_a39705d8b513410a9d1b0a302402341b"
+                }
+              ],
+              "artifacts": [],
+              "publication_source": null,
+              "publication_digest": null
+            }
+          },
+          "state": {
+            "state": "active",
+            "state_version": 0,
+            "merged_into_id": null
+          }
+        }
+      ],
+      "primary_artifact_id": "art_0bb8c9adec3a489ca736eb405a2d0162",
+      "retired": [],
+      "undo_merge_results": []
+    }
+  },
+  "finished_at_utc": "2026-11-03T03:31:37.674103+00:00"
+}

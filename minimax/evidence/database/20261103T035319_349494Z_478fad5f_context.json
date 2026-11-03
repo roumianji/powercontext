@@ -1,0 +1,77 @@
+{
+  "started_at_utc": "2026-11-03T03:53:19.349573+00:00",
+  "command": [
+    "/home/research/coursework/ob2026-powercontext/minimax/.venv/bin/python",
+    "-m",
+    "context_module",
+    "context",
+    "--task",
+    "给任务列表增加 status 筛选，保持原有功能"
+  ],
+  "working_directory": "/home/research/coursework/ob2026-powercontext/minimax",
+  "project_root": "/home/research/coursework/ob2026-powercontext/minimax",
+  "database_path": "/home/research/coursework/ob2026-powercontext/minimax/.runtime/engineering.seekdb",
+  "module_version": "0.1.0",
+  "exit_code": 0,
+  "database": {
+    "engine": "seekdb",
+    "server_version": "5.7.25-OceanBase seekdb-v1.4.0.0",
+    "pylibseekdb": "1.4.0.post2",
+    "PyMySQL": "1.2.0"
+  },
+  "project_revision": "28de6275ff85f5664d34338e0ec86eee3e6a0e010f4b35d1fbd9d9d7e4a52baa",
+  "context_evidence": "evidence/context/20261103T035319_349494Z_478fad5f.json",
+  "selected_sources": [
+    "specs/task_list.md",
+    "demo_app/__main__.py",
+    "demo_app/service.py",
+    "tests/test_target.py",
+    "tests/test_regression.py",
+    "data/tasks.json"
+  ],
+  "queries": [
+    {
+      "sql": "CREATE TABLE IF NOT EXISTS minimax_docs (\n            source_path VARCHAR(512) NOT NULL PRIMARY KEY,\n            kind VARCHAR(32) NOT NULL,\n            content LONGTEXT NOT NULL,\n            sha256 CHAR(64) NOT NULL,\n            metadata_json LONGTEXT NOT NULL\n        )",
+      "parameters": [],
+      "affected_or_returned_rows": 0,
+      "returned_sources": []
+    },
+    {
+      "sql": "CREATE TABLE IF NOT EXISTS minimax_meta (\n            meta_key VARCHAR(64) NOT NULL PRIMARY KEY,\n            meta_value LONGTEXT NOT NULL\n        )",
+      "parameters": [],
+      "affected_or_returned_rows": 0,
+      "returned_sources": []
+    },
+    {
+      "sql": "SELECT VERSION() AS server_version",
+      "parameters": [],
+      "affected_or_returned_rows": 1,
+      "returned_sources": []
+    },
+    {
+      "sql": "SELECT meta_key, meta_value FROM minimax_meta",
+      "parameters": [],
+      "affected_or_returned_rows": 2,
+      "returned_sources": []
+    },
+    {
+      "sql": "SELECT source_path, kind, content, sha256, metadata_json FROM minimax_docs WHERE (LOCATE(%s, LOWER(content)) > 0 OR LOCATE(%s, LOWER(source_path)) > 0) OR (LOCATE(%s, LOWER(content)) > 0 OR LOCATE(%s, LOWER(source_path)) > 0) ORDER BY source_path",
+      "parameters": [
+        "status",
+        "status",
+        "filter",
+        "filter"
+      ],
+      "affected_or_returned_rows": 6,
+      "returned_sources": [
+        "data/tasks.json",
+        "demo_app/service.py",
+        "demo_app/__main__.py",
+        "specs/task_list.md",
+        "tests/test_regression.py",
+        "tests/test_target.py"
+      ]
+    }
+  ],
+  "finished_at_utc": "2026-11-03T03:53:22.228459+00:00"
+}

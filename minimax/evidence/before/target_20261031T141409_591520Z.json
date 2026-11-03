@@ -1,0 +1,31 @@
+{
+  "started_at_utc": "2026-10-31T14:14:09.538346+00:00",
+  "finished_at_utc": "2026-10-31T14:14:09.591421+00:00",
+  "command": [
+    "/home/research/coursework/ob2026-powercontext/minimax/.venv/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_target"
+  ],
+  "working_directory": "/home/research/coursework/ob2026-powercontext/minimax",
+  "exit_code": 1,
+  "python_version": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "git_head": "d647275c308e09b7b623f322a26f5c4e85734fb0",
+  "code_version": "626352e341beb9593be2f0662f21d820cacd74f675732469dc4b019357cdf6e9",
+  "note": "code_version hashes the delivered working-tree files; git_head alone may predate uncommitted files",
+  "file_sha256": {
+    "demo_app/__init__.py": "84f1bebe06fcf033cc0ebcdd9a7256b077efbad89eaf0144aa61b1db6a1bf910",
+    "demo_app/__main__.py": "749ef8d62779797c12b28cf49fda4fa52c5da9a08818b07bcefefe3888e7e086",
+    "demo_app/service.py": "14f2c1d05f49f0d63336c30328a1d001903eaa1b1a7d8cd27367f1d02c277273",
+    "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/test_regression.py": "e4caa562ff5d6910733f7607508935fd4d4210bbed6638e99ea609488e2f23bc",
+    "tests/test_target.py": "2286a9111c6e848432a87dfa4ee6a8dd1c74f9d7aeaacf077d15e451e09cfd1e",
+    "specs/task_list.md": "e8346c5c5ac31855ad5d92d680dee5cce22435467ba0fbf6354bb331bc32fcb6",
+    "data/tasks.json": "756fd85184b7145457b4366cbd396bb0f7eb5f2833553f31d3b131d6872f5e77",
+    "tools/run_tests.py": "f6921cf44b8710b930d45e5aef99eeb4a1cc14683629fb9f8ff13792028b0465"
+  },
+  "suite": "target",
+  "label": "before",
+  "output": "test_doing (tests.test_target.StatusFilterTests.test_doing) ... FAIL\ntest_done (tests.test_target.StatusFilterTests.test_done) ... FAIL\ntest_invalid_status (tests.test_target.StatusFilterTests.test_invalid_status) ... FAIL\ntest_keyword_and_status_are_combined (tests.test_target.StatusFilterTests.test_keyword_and_status_are_combined) ... FAIL\ntest_no_matching_status (tests.test_target.StatusFilterTests.test_no_matching_status) ... FAIL\ntest_todo (tests.test_target.StatusFilterTests.test_todo) ... FAIL\n\n======================================================================\nFAIL: test_doing (tests.test_target.StatusFilterTests.test_doing)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/research/coursework/ob2026-powercontext/minimax/tests/test_target.py\", line 19, in test_doing\n    self.assertEqual([task[\"id\"] for task in tasks], [2])\nAssertionError: Lists differ: [1, 2, 3, 4] != [2]\n\nFirst differing element 0:\n1\n2\n\nFirst list contains 3 additional elements.\nFirst extra element 1:\n2\n\n- [1, 2, 3, 4]\n+ [2]\n\n======================================================================\nFAIL: test_done (tests.test_target.StatusFilterTests.test_done)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/research/coursework/ob2026-powercontext/minimax/tests/test_target.py\", line 23, in test_done\n    self.assertEqual([task[\"id\"] for task in tasks], [3])\nAssertionError: Lists differ: [1, 2, 3, 4] != [3]\n\nFirst differing element 0:\n1\n3\n\nFirst list contains 3 additional elements.\nFirst extra element 1:\n2\n\n- [1, 2, 3, 4]\n+ [3]\n\n======================================================================\nFAIL: test_invalid_status (tests.test_target.StatusFilterTests.test_invalid_status)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/research/coursework/ob2026-powercontext/minimax/tests/test_target.py\", line 26, in test_invalid_status\n    with self.assertRaises(ValueError):\nAssertionError: ValueError not raised\n\n======================================================================\nFAIL: test_keyword_and_status_are_combined (tests.test_target.StatusFilterTests.test_keyword_and_status_are_combined)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/research/coursework/ob2026-powercontext/minimax/tests/test_target.py\", line 31, in test_keyword_and_status_are_combined\n    self.assertEqual(tasks, [])\nAssertionError: Lists differ: [{'id': 1, 'title': '阅读论文', 'status': 'tod[47 chars]do'}] != []\n\nFirst list contains 2 additional elements.\nFirst extra element 0:\n{'id': 1, 'title': '阅读论文', 'status': 'todo'}\n\n+ []\n- [{'id': 1, 'status': 'todo', 'title': '阅读论文'},\n-  {'id': 4, 'status': 'todo', 'title': '整理论文笔记'}]\n\n======================================================================\nFAIL: test_no_matching_status (tests.test_target.StatusFilterTests.test_no_matching_status)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/research/coursework/ob2026-powercontext/minimax/tests/test_target.py\", line 35, in test_no_matching_status\n    self.assertEqual(board.list_tasks({\"status\": \"done\"}), [])\nAssertionError: Lists differ: [{'id': 1, 'title': '单个任务', 'status': 'todo'}] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\n{'id': 1, 'title': '单个任务', 'status': 'todo'}\n\n- [{'id': 1, 'status': 'todo', 'title': '单个任务'}]\n+ []\n\n======================================================================\nFAIL: test_todo (tests.test_target.StatusFilterTests.test_todo)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/research/coursework/ob2026-powercontext/minimax/tests/test_target.py\", line 15, in test_todo\n    self.assertEqual([task[\"id\"] for task in tasks], [1, 4])\nAssertionError: Lists differ: [1, 2, 3, 4] != [1, 4]\n\nFirst differing element 1:\n2\n4\n\nFirst list contains 2 additional elements.\nFirst extra element 2:\n3\n\n- [1, 2, 3, 4]\n+ [1, 4]\n\n----------------------------------------------------------------------\nRan 6 tests in 0.003s\n\nFAILED (failures=6)\n"
+}

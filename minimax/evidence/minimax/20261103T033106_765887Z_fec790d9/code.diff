@@ -1,0 +1,14 @@
+--- before/demo_app/service.py
++++ after/demo_app/service.py
+@@ -15,6 +15,11 @@
+         keyword = query.get("q", "").strip().casefold()
+         if keyword:
+             tasks = [task for task in tasks if keyword in task["title"].casefold()]
++        if "status" in query:
++            status = query["status"]
++            if status not in VALID_STATUSES:
++                raise ValueError("invalid status")
++            tasks = [task for task in tasks if task["status"] == status]
+         return tasks
+
+     def create_task(self, title):

@@ -1,0 +1,293 @@
+{
+  "schema": "minimax-sdd-context-v1",
+  "module_version": "0.1.0",
+  "task": "给任务列表增加 status 筛选，保持原有功能",
+  "created_at_utc": "2026-11-03T03:31:32.949932+00:00",
+  "terms": [
+    "status",
+    "filter"
+  ],
+  "project_revision": "75397b47301cd44ac6d251a7298a00a456dafbe653322089154febfae4769e79",
+  "imported_at_utc": "2026-11-03T03:31:30.583551+00:00",
+  "database": {
+    "engine": "seekdb",
+    "server_version": "5.7.25-OceanBase seekdb-v1.4.0.0",
+    "pylibseekdb": "1.4.0.post2",
+    "PyMySQL": "1.2.0"
+  },
+  "selection": "parameterized SQL keyword search over current imported engineering sources",
+  "documents": [
+    {
+      "source_path": "specs/task_list.md",
+      "kind": "spec",
+      "content": "# 任务列表规格 v1\n\n## 已有行为：修改后必须保持\n\n- KEEP-001：不提供 status 时返回全部任务，保持插入顺序；提供 q 时仍执行原有标题筛选。\n- KEEP-002：q 去除首尾空白，匹配标题时忽略大小写。空 q 不限制结果。\n- KEEP-003：创建任务时去除标题首尾空白，空标题抛出 ValueError；新任务状态为 todo。\n- KEEP-004：任务状态更新和删除保持原有行为；有效状态为 todo、doing、done。\n- KEEP-005：查询返回副本，外部修改结果不得改动内部任务数据。\n\n## 本次新增行为\n\n- STATUS-001：query 包含 status 时，按精确状态筛选；todo、doing、done 均受支持，保持原有顺序。\n- STATUS-002：status 和 q 同时提供时，两项条件必须同时满足。\n- STATUS-003：status 的值不在有效状态中时抛出 ValueError。HTTP 接口将其转为 400。\n- STATUS-004：没有匹配任务时返回空列表。\n\n## 必要来源\n\n- 规格：本文件中的 KEEP-001 至 KEEP-005、STATUS-001 至 STATUS-004。\n- 需修改的代码：demo_app/service.py 的 TaskBoard.list_tasks。\n- 调用上下文：demo_app/__main__.py 中 GET /tasks 对查询参数的处理。\n- 功能测试：tests/test_target.py 的 StatusFilterTests。\n- 回归测试：tests/test_regression.py 的 ExistingBehaviorTests。\n- 初始数据：data/tasks.json。\n\n## 初始版本说明\n\n原版 list_tasks 只处理 q，尚未处理 status；HTTP 接口允许传入查询参数。\n目标测试在原版上会因为未按状态筛选而失败，不是依赖缺失或程序无法启动。\n后续使用 MiniMax 修改业务实现；两次验证使用同一份测试文件，不改断言或预期。\n",
+      "sha256": "e8346c5c5ac31855ad5d92d680dee5cce22435467ba0fbf6354bb331bc32fcb6",
+      "metadata": {
+        "line_start": 1,
+        "line_end": 31,
+        "symbols": [],
+        "requirements": [
+          {
+            "id": "KEEP-001",
+            "line": 5,
+            "text": "不提供 status 时返回全部任务，保持插入顺序；提供 q 时仍执行原有标题筛选。"
+          },
+          {
+            "id": "KEEP-002",
+            "line": 6,
+            "text": "q 去除首尾空白，匹配标题时忽略大小写。空 q 不限制结果。"
+          },
+          {
+            "id": "KEEP-003",
+            "line": 7,
+            "text": "创建任务时去除标题首尾空白，空标题抛出 ValueError；新任务状态为 todo。"
+          },
+          {
+            "id": "KEEP-004",
+            "line": 8,
+            "text": "任务状态更新和删除保持原有行为；有效状态为 todo、doing、done。"
+          },
+          {
+            "id": "KEEP-005",
+            "line": 9,
+            "text": "查询返回副本，外部修改结果不得改动内部任务数据。"
+          },
+          {
+            "id": "STATUS-001",
+            "line": 13,
+            "text": "query 包含 status 时，按精确状态筛选；todo、doing、done 均受支持，保持原有顺序。"
+          },
+          {
+            "id": "STATUS-002",
+            "line": 14,
+            "text": "status 和 q 同时提供时，两项条件必须同时满足。"
+          },
+          {
+            "id": "STATUS-003",
+            "line": 15,
+            "text": "status 的值不在有效状态中时抛出 ValueError。HTTP 接口将其转为 400。"
+          },
+          {
+            "id": "STATUS-004",
+            "line": 16,
+            "text": "没有匹配任务时返回空列表。"
+          }
+        ]
+      }
+    },
+    {
+      "source_path": "demo_app/__main__.py",
+      "kind": "code",
+      "content": "import argparse\nimport json\nfrom http.server import BaseHTTPRequestHandler, ThreadingHTTPServer\nfrom pathlib import Path\nfrom urllib.parse import parse_qs, urlsplit\n\nfrom .service import TaskBoard\n\n\ndef main():\n    parser = argparse.ArgumentParser(description=\"Task list HTTP demo\")\n    parser.add_argument(\"--host\", default=\"127.0.0.1\")\n    parser.add_argument(\"--port\", type=int, default=8088)\n    parser.add_argument(\"--data\", type=Path, default=Path(__file__).resolve().parents[1] / \"data/tasks.json\")\n    args = parser.parse_args()\n    board = TaskBoard(json.loads(args.data.read_text(encoding=\"utf-8\")))\n\n    class Handler(BaseHTTPRequestHandler):\n        def respond(self, status, payload):\n            body = json.dumps(payload, ensure_ascii=False).encode(\"utf-8\")\n            self.send_response(status)\n            self.send_header(\"Content-Type\", \"application/json; charset=utf-8\")\n            self.send_header(\"Content-Length\", str(len(body)))\n            self.end_headers()\n            self.wfile.write(body)\n\n        def do_GET(self):\n            parsed = urlsplit(self.path)\n            if parsed.path == \"/health\":\n                self.respond(200, {\"status\": \"ok\"})\n                return\n            if parsed.path != \"/tasks\":\n                self.respond(404, {\"error\": \"not found\"})\n                return\n            query = {key: values[-1] for key, values in parse_qs(parsed.query, keep_blank_values=True).items()}\n            try:\n                self.respond(200, board.list_tasks(query))\n            except ValueError as error:\n                self.respond(400, {\"error\": str(error)})\n\n    server = ThreadingHTTPServer((args.host, args.port), Handler)\n    print(f\"Task demo running at http://{args.host}:{server.server_port}/tasks\", flush=True)\n    try:\n        server.serve_forever()\n    except KeyboardInterrupt:\n        pass\n    finally:\n        server.server_close()\n\n\nif __name__ == \"__main__\":\n    main()\n",
+      "sha256": "749ef8d62779797c12b28cf49fda4fa52c5da9a08818b07bcefefe3888e7e086",
+      "metadata": {
+        "line_start": 1,
+        "line_end": 52,
+        "symbols": [
+          {
+            "name": "main",
+            "line_start": 10,
+            "line_end": 48
+          },
+          {
+            "name": "main.Handler",
+            "line_start": 18,
+            "line_end": 39
+          },
+          {
+            "name": "main.Handler.respond",
+            "line_start": 19,
+            "line_end": 25
+          },
+          {
+            "name": "main.Handler.do_GET",
+            "line_start": 27,
+            "line_end": 39
+          }
+        ],
+        "requirements": []
+      }
+    },
+    {
+      "source_path": "demo_app/service.py",
+      "kind": "code",
+      "content": "from copy import deepcopy\n\n\nVALID_STATUSES = (\"todo\", \"doing\", \"done\")\n\n\nclass TaskBoard:\n    def __init__(self, tasks=()):\n        self._tasks = {task[\"id\"]: deepcopy(task) for task in tasks}\n\n    def list_tasks(self, query=None):\n        \"\"\"List tasks in insertion order; the original version supports q.\"\"\"\n        query = query or {}\n        tasks = deepcopy(list(self._tasks.values()))\n        keyword = query.get(\"q\", \"\").strip().casefold()\n        if keyword:\n            tasks = [task for task in tasks if keyword in task[\"title\"].casefold()]\n        if \"status\" in query:\n            status = query[\"status\"]\n            if status not in VALID_STATUSES:\n                raise ValueError(\"invalid status\")\n            tasks = [task for task in tasks if task[\"status\"] == status]\n        return tasks\n\n    def create_task(self, title):\n        title = title.strip()\n        if not title:\n            raise ValueError(\"title must not be blank\")\n        task_id = max(self._tasks, default=0) + 1\n        task = {\"id\": task_id, \"title\": title, \"status\": \"todo\"}\n        self._tasks[task_id] = task\n        return deepcopy(task)\n\n    def set_status(self, task_id, status):\n        if status not in VALID_STATUSES:\n            raise ValueError(\"invalid status\")\n        self._tasks[task_id][\"status\"] = status\n        return deepcopy(self._tasks[task_id])\n\n    def delete_task(self, task_id):\n        del self._tasks[task_id]\n",
+      "sha256": "7f7aa8eda2d864d4dc87713cd7a5d083d05b7c5171fef7a967fc91f8b8298e2f",
+      "metadata": {
+        "line_start": 1,
+        "line_end": 41,
+        "symbols": [
+          {
+            "name": "TaskBoard",
+            "line_start": 7,
+            "line_end": 41
+          },
+          {
+            "name": "TaskBoard.__init__",
+            "line_start": 8,
+            "line_end": 9
+          },
+          {
+            "name": "TaskBoard.list_tasks",
+            "line_start": 11,
+            "line_end": 23
+          },
+          {
+            "name": "TaskBoard.create_task",
+            "line_start": 25,
+            "line_end": 32
+          },
+          {
+            "name": "TaskBoard.set_status",
+            "line_start": 34,
+            "line_end": 38
+          },
+          {
+            "name": "TaskBoard.delete_task",
+            "line_start": 40,
+            "line_end": 41
+          }
+        ],
+        "requirements": []
+      }
+    },
+    {
+      "source_path": "tests/test_target.py",
+      "kind": "target_test",
+      "content": "import json\nimport unittest\nfrom pathlib import Path\n\nfrom demo_app.service import TaskBoard\n\n\nclass StatusFilterTests(unittest.TestCase):\n    def setUp(self):\n        path = Path(__file__).resolve().parents[1] / \"data/tasks.json\"\n        self.board = TaskBoard(json.loads(path.read_text(encoding=\"utf-8\")))\n\n    def test_todo(self):\n        tasks = self.board.list_tasks({\"status\": \"todo\"})\n        self.assertEqual([task[\"id\"] for task in tasks], [1, 4])\n\n    def test_doing(self):\n        tasks = self.board.list_tasks({\"status\": \"doing\"})\n        self.assertEqual([task[\"id\"] for task in tasks], [2])\n\n    def test_done(self):\n        tasks = self.board.list_tasks({\"status\": \"done\"})\n        self.assertEqual([task[\"id\"] for task in tasks], [3])\n\n    def test_invalid_status(self):\n        with self.assertRaises(ValueError):\n            self.board.list_tasks({\"status\": \"unknown\"})\n\n    def test_keyword_and_status_are_combined(self):\n        tasks = self.board.list_tasks({\"q\": \"论文\", \"status\": \"done\"})\n        self.assertEqual(tasks, [])\n\n    def test_no_matching_status(self):\n        board = TaskBoard([{\"id\": 1, \"title\": \"单个任务\", \"status\": \"todo\"}])\n        self.assertEqual(board.list_tasks({\"status\": \"done\"}), [])\n",
+      "sha256": "2286a9111c6e848432a87dfa4ee6a8dd1c74f9d7aeaacf077d15e451e09cfd1e",
+      "metadata": {
+        "line_start": 1,
+        "line_end": 35,
+        "symbols": [
+          {
+            "name": "StatusFilterTests",
+            "line_start": 8,
+            "line_end": 35
+          },
+          {
+            "name": "StatusFilterTests.setUp",
+            "line_start": 9,
+            "line_end": 11
+          },
+          {
+            "name": "StatusFilterTests.test_todo",
+            "line_start": 13,
+            "line_end": 15
+          },
+          {
+            "name": "StatusFilterTests.test_doing",
+            "line_start": 17,
+            "line_end": 19
+          },
+          {
+            "name": "StatusFilterTests.test_done",
+            "line_start": 21,
+            "line_end": 23
+          },
+          {
+            "name": "StatusFilterTests.test_invalid_status",
+            "line_start": 25,
+            "line_end": 27
+          },
+          {
+            "name": "StatusFilterTests.test_keyword_and_status_are_combined",
+            "line_start": 29,
+            "line_end": 31
+          },
+          {
+            "name": "StatusFilterTests.test_no_matching_status",
+            "line_start": 33,
+            "line_end": 35
+          }
+        ],
+        "requirements": []
+      }
+    },
+    {
+      "source_path": "tests/test_regression.py",
+      "kind": "regression_test",
+      "content": "import json\nimport unittest\nfrom pathlib import Path\n\nfrom demo_app.service import TaskBoard\n\n\nclass ExistingBehaviorTests(unittest.TestCase):\n    def setUp(self):\n        path = Path(__file__).resolve().parents[1] / \"data/tasks.json\"\n        self.board = TaskBoard(json.loads(path.read_text(encoding=\"utf-8\")))\n\n    def test_default_list_keeps_order(self):\n        self.assertEqual([task[\"id\"] for task in self.board.list_tasks()], [1, 2, 3, 4])\n\n    def test_title_keyword(self):\n        tasks = self.board.list_tasks({\"q\": \"论文\"})\n        self.assertEqual([task[\"id\"] for task in tasks], [1, 4])\n\n    def test_blank_keyword(self):\n        self.assertEqual(len(self.board.list_tasks({\"q\": \"  \"})), 4)\n\n    def test_keyword_is_case_insensitive(self):\n        board = TaskBoard([{\"id\": 1, \"title\": \"Read Python\", \"status\": \"todo\"}])\n        self.assertEqual(len(board.list_tasks({\"q\": \"PYTHON\"})), 1)\n\n    def test_create(self):\n        task = self.board.create_task(\"  新任务  \")\n        self.assertEqual(task, {\"id\": 5, \"title\": \"新任务\", \"status\": \"todo\"})\n        self.assertEqual(len(self.board.list_tasks()), 5)\n\n    def test_blank_title_rejected(self):\n        with self.assertRaises(ValueError):\n            self.board.create_task(\"  \")\n\n    def test_change_status(self):\n        self.assertEqual(self.board.set_status(1, \"done\")[\"status\"], \"done\")\n        self.assertEqual(self.board.list_tasks()[0][\"status\"], \"done\")\n\n    def test_invalid_status_update_rejected(self):\n        with self.assertRaises(ValueError):\n            self.board.set_status(1, \"unknown\")\n\n    def test_delete(self):\n        self.board.delete_task(2)\n        self.assertEqual([task[\"id\"] for task in self.board.list_tasks()], [1, 3, 4])\n\n    def test_results_do_not_expose_internal_state(self):\n        self.board.list_tasks()[0][\"title\"] = \"changed outside\"\n        self.assertEqual(self.board.list_tasks()[0][\"title\"], \"阅读论文\")\n",
+      "sha256": "e4caa562ff5d6910733f7607508935fd4d4210bbed6638e99ea609488e2f23bc",
+      "metadata": {
+        "line_start": 1,
+        "line_end": 50,
+        "symbols": [
+          {
+            "name": "ExistingBehaviorTests",
+            "line_start": 8,
+            "line_end": 50
+          },
+          {
+            "name": "ExistingBehaviorTests.setUp",
+            "line_start": 9,
+            "line_end": 11
+          },
+          {
+            "name": "ExistingBehaviorTests.test_default_list_keeps_order",
+            "line_start": 13,
+            "line_end": 14
+          },
+          {
+            "name": "ExistingBehaviorTests.test_title_keyword",
+            "line_start": 16,
+            "line_end": 18
+          },
+          {
+            "name": "ExistingBehaviorTests.test_blank_keyword",
+            "line_start": 20,
+            "line_end": 21
+          },
+          {
+            "name": "ExistingBehaviorTests.test_keyword_is_case_insensitive",
+            "line_start": 23,
+            "line_end": 25
+          },
+          {
+            "name": "ExistingBehaviorTests.test_create",
+            "line_start": 27,
+            "line_end": 30
+          },
+          {
+            "name": "ExistingBehaviorTests.test_blank_title_rejected",
+            "line_start": 32,
+            "line_end": 34
+          },
+          {
+            "name": "ExistingBehaviorTests.test_change_status",
+            "line_start": 36,
+            "line_end": 38
+          },
+          {
+            "name": "ExistingBehaviorTests.test_invalid_status_update_rejected",
+            "line_start": 40,
+            "line_end": 42
+          },
+          {
+            "name": "ExistingBehaviorTests.test_delete",
+            "line_start": 44,
+            "line_end": 46
+          },
+          {
+            "name": "ExistingBehaviorTests.test_results_do_not_expose_internal_state",
+            "line_start": 48,
+            "line_end": 50
+          }
+        ],
+        "requirements": []
+      }
+    },
+    {
+      "source_path": "data/tasks.json",
+      "kind": "data",
+      "content": "[\n  {\"id\": 1, \"title\": \"阅读论文\", \"status\": \"todo\"},\n  {\"id\": 2, \"title\": \"完成课程报告\", \"status\": \"doing\"},\n  {\"id\": 3, \"title\": \"提交练习\", \"status\": \"done\"},\n  {\"id\": 4, \"title\": \"整理论文笔记\", \"status\": \"todo\"}\n]\n",
+      "sha256": "756fd85184b7145457b4366cbd396bb0f7eb5f2833553f31d3b131d6872f5e77",
+      "metadata": {
+        "line_start": 1,
+        "line_end": 6,
+        "symbols": [],
+        "requirements": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "started_at_utc": "2026-11-03T03:54:52.831757+00:00",
+  "command": [
+    "/home/research/coursework/ob2026-powercontext/minimax/.venv/bin/python",
+    "-m",
+    "task_state",
+    "resume"
+  ],
+  "process_id": 20496,
+  "process_instance_id": "f55c417ffd694fb7b1ecc47e19a93d72",
+  "working_directory": "/home/research/coursework/ob2026-powercontext/minimax",
+  "state_database": "/home/research/coursework/ob2026-powercontext/minimax/.runtime/powercontext.sqlite3",
+  "task_id": "status-filter-v1",
+  "module_version": "0.1.0",
+  "exit_code": 0,
+  "powercontext_version": "1.4.1",
+  "engineering_database_queries": [
+    {
+      "sql": "CREATE TABLE IF NOT EXISTS minimax_docs (\n            source_path VARCHAR(512) NOT NULL PRIMARY KEY,\n            kind VARCHAR(32) NOT NULL,\n            content LONGTEXT NOT NULL,\n            sha256 CHAR(64) NOT NULL,\n            metadata_json LONGTEXT NOT NULL\n        )",
+      "parameters": [],
+      "affected_or_returned_rows": 0,
+      "returned_sources": []
+    },
+    {
+      "sql": "CREATE TABLE IF NOT EXISTS minimax_meta (\n            meta_key VARCHAR(64) NOT NULL PRIMARY KEY,\n            meta_value LONGTEXT NOT NULL\n        )",
+      "parameters": [],
+      "affected_or_returned_rows": 0,
+      "returned_sources": []
+    },
+    {
+      "sql": "SELECT VERSION() AS server_version",
+      "parameters": [],
+      "affected_or_returned_rows": 1,
+      "returned_sources": []
+    },
+    {
+      "sql": "SELECT meta_key, meta_value FROM minimax_meta",
+      "parameters": [],
+      "affected_or_returned_rows": 2,
+      "returned_sources": []
+    },
+    {
+      "sql": "SELECT source_path, kind, content, sha256, metadata_json FROM minimax_docs WHERE (LOCATE(%s, LOWER(content)) > 0 OR LOCATE(%s, LOWER(source_path)) > 0) OR (LOCATE(%s, LOWER(content)) > 0 OR LOCATE(%s, LOWER(source_path)) > 0) ORDER BY source_path",
+      "parameters": [
+        "status",
+        "status",
+        "filter",
+        "filter"
+      ],
+      "affected_or_returned_rows": 6,
+      "returned_sources": [
+        "data/tasks.json",
+        "demo_app/service.py",
+        "demo_app/__main__.py",
+        "specs/task_list.md",
+        "tests/test_regression.py",
+        "tests/test_target.py"
+      ]
+    }
+  ],
+  "engineering_database": {
+    "engine": "seekdb",
+    "server_version": "5.7.25-OceanBase seekdb-v1.4.0.0",
+    "pylibseekdb": "1.4.0.post2",
+    "PyMySQL": "1.2.0"
+  },
+  "operation": "AtomicMemory.list/get",
+  "state": {
+    "schema": "minimax-task-state-v1",
+    "task_id": "status-filter-v1",
+    "phase": "after",
+    "saved_at_utc": "2026-11-03T03:54:45.622204+00:00",
+    "saved_process_id": 20458,
+    "saved_process_instance_id": "d1af7f68c2ca4d25be4c62b54bce5181",
+    "task": "给任务列表增加 status 筛选，保持原有功能",
+    "project_revision": "28de6275ff85f5664d34338e0ec86eee3e6a0e010f4b35d1fbd9d9d7e4a52baa",
+    "completed": [
+      "工程资料已导入 seekdb",
+      "已查询并构造开发上下文",
+      "修改后目标测试通过",
+      "修改后回归测试通过"
+    ],
+    "pending": [
+      "核对 MiniMax 修改记录",
+      "验证规格更新并重新导入",
+      "整理提交材料"
+    ],
+    "validation_results": [
+      {
+        "suite": "regression",
+        "phase": "after",
+        "exit_code": 0,
+        "code_version": "a552c6bec1e17248252954382495fbeac9d2d46324cad555470bc5de7a98f2cf",
+        "summary": [
+          "Ran 10 tests in 0.005s",
+          "OK"
+        ],
+        "log": {
+          "source_path": "evidence/after/regression_20261103T035445_400529Z.json",
+          "sha256": "dab7c3a237872b014816d11c7945063aa7f5ee5f7a9c89e8a1834311bdbca1dc"
+        }
+      },
+      {
+        "suite": "target",
+        "phase": "after",
+        "exit_code": 0,
+        "code_version": "a552c6bec1e17248252954382495fbeac9d2d46324cad555470bc5de7a98f2cf",
+        "summary": [
+          "Ran 6 tests in 0.004s",
+          "OK"
+        ],
+        "log": {
+          "source_path": "evidence/after/target_20261103T035445_198227Z.json",
+          "sha256": "19158ecb03da69b5731a082509055a1e41819009fdbab3f367ac58273738d181"
+        }
+      }
+    ],
+    "receipts": {
+      "context": {
+        "source_path": "evidence/context/20261103T035319_349494Z_478fad5f.json",
+        "sha256": "44be6b77795dcffab403894d4ccda2c46669c876fd6a03ab59e09e9d133375d4"
+      },
+      "database_query": {
+        "source_path": "evidence/database/20261103T035319_349494Z_478fad5f_context.json",
+        "sha256": "bb15b915e26252918a98dab0ef4d9b4695e7285e06b489300011c2170ae85430"
+      }
+    }
+  },
+  "powercontext": {
+    "scope_id": "scp_42wa24sxr63qcd6phrjr6rb8z3",
+    "reference": {
+      "family": "atomic-memory",
+      "artifact_id": "art_ce7513e430b34e629b2bbd1baf4282c7",
+      "revision": 1
+    },
+    "sdk_response": {
+      "artifact": {
+        "artifact_id": "art_ce7513e430b34e629b2bbd1baf4282c7",
+        "revision": 1,
+        "content": {
+          "schema": "powercontext.atomic-memory.v1",
+          "kind": "minimax-task-state",
+          "text": "{\"schema\":\"minimax-task-state-v1\",\"task_id\":\"status-filter-v1\",\"phase\":\"after\",\"saved_at_utc\":\"2026-11-03T03:54:45.622204+00:00\",\"saved_process_id\":20458,\"saved_process_instance_id\":\"d1af7f68c2ca4d25be4c62b54bce5181\",\"task\":\"给任务列表增加 status 筛选，保持原有功能\",\"project_revision\":\"28de6275ff85f5664d34338e0ec86eee3e6a0e010f4b35d1fbd9d9d7e4a52baa\",\"completed\":[\"工程资料已导入 seekdb\",\"已查询并构造开发上下文\",\"修改后目标测试通过\",\"修改后回归测试通过\"],\"pending\":[\"核对 MiniMax 修改记录\",\"验证规格更新并重新导入\",\"整理提交材料\"],\"validation_results\":[{\"suite\":\"regression\",\"phase\":\"after\",\"exit_code\":0,\"code_version\":\"a552c6bec1e17248252954382495fbeac9d2d46324cad555470bc5de7a98f2cf\",\"summary\":[\"Ran 10 tests in 0.005s\",\"OK\"],\"log\":{\"source_path\":\"evidence/after/regression_20261103T035445_400529Z.json\",\"sha256\":\"dab7c3a237872b014816d11c7945063aa7f5ee5f7a9c89e8a1834311bdbca1dc\"}},{\"suite\":\"target\",\"phase\":\"after\",\"exit_code\":0,\"code_version\":\"a552c6bec1e17248252954382495fbeac9d2d46324cad555470bc5de7a98f2cf\",\"summary\":[\"Ran 6 tests in 0.004s\",\"OK\"],\"log\":{\"source_path\":\"evidence/after/target_20261103T035445_198227Z.json\",\"sha256\":\"19158ecb03da69b5731a082509055a1e41819009fdbab3f367ac58273738d181\"}}],\"receipts\":{\"context\":{\"source_path\":\"evidence/context/20261103T035319_349494Z_478fad5f.json\",\"sha256\":\"44be6b77795dcffab403894d4ccda2c46669c876fd6a03ab59e09e9d133375d4\"},\"database_query\":{\"source_path\":\"evidence/database/20261103T035319_349494Z_478fad5f_context.json\",\"sha256\":\"bb15b915e26252918a98dab0ef4d9b4695e7285e06b489300011c2170ae85430\"}}}",
+          "creation": null
+        },
+        "lineage": {
+          "sources": [
+            {
+              "source_type": "content",
+              "source_id": "src_3a185c329f22490893fbdeafc8fa39f1"
+            }
+          ],
+          "artifacts": [],
+          "publication_source": null,
+          "publication_digest": null
+        }
+      },
+      "state": {
+        "state": "active",
+        "state_version": 0,
+        "merged_into_id": null
+      }
+    }
+  },
+  "saved_process_id": 20458,
+  "different_process": true,
+  "different_process_instance": true,
+  "used_for_context": "evidence/context/20261103T035452_831709Z_f55c417f_with_state.json",
+  "next_action": "核对 MiniMax 修改记录",
+  "finished_at_utc": "2026-11-03T03:55:00.407500+00:00"
+}

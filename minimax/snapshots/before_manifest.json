@@ -1,0 +1,10 @@
+{
+  "demo_app/__init__.py": "84f1bebe06fcf033cc0ebcdd9a7256b077efbad89eaf0144aa61b1db6a1bf910",
+  "demo_app/__main__.py": "749ef8d62779797c12b28cf49fda4fa52c5da9a08818b07bcefefe3888e7e086",
+  "demo_app/service.py": "14f2c1d05f49f0d63336c30328a1d001903eaa1b1a7d8cd27367f1d02c277273",
+  "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "tests/test_regression.py": "e4caa562ff5d6910733f7607508935fd4d4210bbed6638e99ea609488e2f23bc",
+  "tests/test_target.py": "2286a9111c6e848432a87dfa4ee6a8dd1c74f9d7aeaacf077d15e451e09cfd1e",
+  "specs/task_list.md": "e8346c5c5ac31855ad5d92d680dee5cce22435467ba0fbf6354bb331bc32fcb6",
+  "data/tasks.json": "756fd85184b7145457b4366cbd396bb0f7eb5f2833553f31d3b131d6872f5e77"
+}
