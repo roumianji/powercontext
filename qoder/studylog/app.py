@@ -5,6 +5,8 @@ import logging
 import os
 import secrets
 import sys
+import time
+from collections import defaultdict
 from datetime import date, datetime, timedelta
 from functools import wraps
 from pathlib import Path
@@ -30,13 +32,32 @@ API_KEY = os.environ.get("STUDYLOG_API_KEY", "")
 CORS_ORIGINS = os.environ.get("STUDYLOG_CORS_ORIGINS", "").split(",")
 CORS_ORIGINS = [o.strip() for o in CORS_ORIGINS if o.strip()]
 
+DEMO_MODE = os.environ.get("STUDYLOG_DEMO_MODE", "").lower() in ("1", "true", "yes")
+DEMO_PROJECT_TAG = "_公开演示"
+DEMO_RATE_LIMIT = 10
+DEMO_RATE_WINDOW = 60
+_rate_limit_store = defaultdict(list)
+
+
+def _check_rate_limit(ip, limit=DEMO_RATE_LIMIT, window=DEMO_RATE_WINDOW):
+    now = time.time()
+    timestamps = _rate_limit_store[ip]
+    _rate_limit_store[ip] = [t for t in timestamps if now - t < window]
+    if len(_rate_limit_store[ip]) >= limit:
+        return False
+    _rate_limit_store[ip].append(now)
+    return True
+
 
 @app.after_request
 def add_cors_headers(response):
-    if not CORS_ORIGINS:
+    allowed = list(CORS_ORIGINS)
+    if DEMO_MODE:
+        allowed.append("https://studylog-86sb51dc8lq.qoder.zone")
+    if not allowed:
         return response
     origin = request.headers.get("Origin", "")
-    if origin in CORS_ORIGINS or "*" in CORS_ORIGINS:
+    if origin in allowed or "*" in allowed:
         response.headers["Access-Control-Allow-Origin"] = origin
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
         response.headers["Access-Control-Allow-Headers"] = "Content-Type, X-API-Key"
@@ -47,8 +68,10 @@ def add_cors_headers(response):
 def require_api_key(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        if not API_KEY:
+        if request.method == "OPTIONS":
             return f(*args, **kwargs)
+        if not API_KEY:
+            return jsonify({"ok": False, "error": "api_key_not_configured"}), 503
         provided = request.headers.get("X-API-Key", "")
         if not secrets.compare_digest(provided, API_KEY):
             logger.warning(f"API key 验证失败: ip={request.remote_addr}")
@@ -351,6 +374,61 @@ def api_add_log():
     except Exception as e:
         logger.error(f"API 新增失败: {e}", exc_info=True)
         return jsonify({"ok": False, "error": "server_error"}), 500
+
+
+@app.route("/api/demo/logs", methods=["POST", "OPTIONS"])
+def api_demo_add_log():
+    """公开演示写入端点：无需 API Key，但有限流和数据隔离。"""
+    if not DEMO_MODE:
+        return jsonify({"ok": False, "error": "not_found"}), 404
+    if request.method == "OPTIONS":
+        return "", 204
+    ip = request.remote_addr or "unknown"
+    if not _check_rate_limit(ip):
+        logger.warning(f"演示限流触发: ip={ip}")
+        return jsonify({"ok": False, "error": "rate_limited", "retry_after": DEMO_RATE_WINDOW}), 429
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"ok": False, "error": "请求体必须是 JSON"}), 400
+
+        log_date = data.get("log_date", "").strip()
+        completed = data.get("completed", "").strip()
+        problems = data.get("problems", "").strip()
+        next_plan = data.get("next_plan", "").strip()
+
+        if not log_date or not completed:
+            return jsonify({"ok": False, "error": "日期和完成事项为必填项"}), 400
+
+        try:
+            datetime.strptime(log_date, '%Y-%m-%d')
+        except ValueError:
+            return jsonify({"ok": False, "error": "日期格式无效"}), 400
+
+        if len(completed) > 5000 or len(problems) > 5000 or len(next_plan) > 5000:
+            return jsonify({"ok": False, "error": "内容过长"}), 400
+
+        project = DEMO_PROJECT_TAG
+
+        with _store() as store:
+            new_id = store.add_log(log_date, project, completed, problems, next_plan)
+
+        logger.info(f"演示新增记录 #{new_id}: ip={ip}, date={log_date}")
+        return jsonify({"ok": True, "id": new_id, "message": f"记录 #{new_id} 已保存（演示模式）"})
+    except Exception as e:
+        logger.error(f"演示新增失败: {e}", exc_info=True)
+        return jsonify({"ok": False, "error": "server_error"}), 500
+
+
+@app.route("/api/demo/status")
+def api_demo_status():
+    """返回演示模式状态，供前端检测。"""
+    return jsonify({
+        "ok": True,
+        "demo": DEMO_MODE,
+        "rate_limit": DEMO_RATE_LIMIT,
+        "rate_window": DEMO_RATE_WINDOW,
+    })
 
 
 @app.route("/api/projects")

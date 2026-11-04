@@ -1,11 +1,12 @@
 """seekdb 数据库层：连接管理、建表、增删查改。"""
 
 import json
+import os
 from contextlib import closing, contextmanager
 from datetime import date, datetime
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent / "data" / "studylog.seekdb"
+DB_PATH = Path(os.environ.get("STUDYLOG_DB_PATH", str(Path(__file__).parent / "data" / "studylog.seekdb"))).expanduser()
 
 
 @contextmanager

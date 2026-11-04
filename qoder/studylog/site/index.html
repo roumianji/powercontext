@@ -144,8 +144,14 @@
 
 <script>
 (function(){
-    function base(){ return (localStorage.getItem('sl_api') || '').replace(/\/+$/,''); }
-    function key(){ return localStorage.getItem('sl_key') || ''; }
+    var DEMO_URL = '';
+    var isDemo = false;
+
+    function base(){
+        if(isDemo && DEMO_URL) return DEMO_URL;
+        return (localStorage.getItem('sl_api') || '').replace(/\/+$/,'');
+    }
+    function key(){ return isDemo ? '' : (localStorage.getItem('sl_key') || ''); }
 
     async function api(path, opts){
         opts = opts || {};
@@ -165,6 +171,7 @@
             if(ct.indexOf('json') >= 0){
                 try{ var j = await resp.json(); txt = j.error || txt; } catch(e){}
             }
+            if(resp.status === 429) txt = '\u8bf7\u6c42\u8fc7\u4e8e\u9891\u7e41\uff0c\u8bf7\u7a0d\u540e\u518d\u8bd5';
             throw new Error(txt);
         }
         return resp.json();
@@ -275,14 +282,21 @@
         var c = document.getElementById('aCompleted').value.trim();
         var pr = document.getElementById('aProblems').value.trim();
         var n = document.getElementById('aNextPlan').value.trim();
-        if(!d || !p || !c){
-            msgEl.innerHTML = '<div class="msg msg-err">\u65e5\u671f\u3001\u9879\u76ee\u548c\u5b8c\u6210\u4e8b\u9879\u4e3a\u5fc5\u586b\u9879</div>';
+        if(!d || !c){
+            msgEl.innerHTML = '<div class="msg msg-err">\u65e5\u671f\u548c\u5b8c\u6210\u4e8b\u9879\u4e3a\u5fc5\u586b\u9879</div>';
+            return;
+        }
+        if(!isDemo && !p){
+            msgEl.innerHTML = '<div class="msg msg-err">\u9879\u76ee\u540d\u79f0\u4e3a\u5fc5\u586b\u9879</div>';
             return;
         }
         btn.disabled = true;
         btn.textContent = '\u4fdd\u5b58\u4e2d...';
         try{
-            var r = await api('/api/logs', {method:'POST', body:{log_date:d, project:p, completed:c, problems:pr, next_plan:n}});
+            var endpoint = isDemo ? '/api/demo/logs' : '/api/logs';
+            var payload = {log_date:d, completed:c, problems:pr, next_plan:n};
+            if(!isDemo) payload.project = p;
+            var r = await api(endpoint, {method:'POST', body:payload});
             if(r.ok){
                 msgEl.innerHTML = '<div class="msg msg-ok">' + esc(r.message) + '</div>';
                 document.getElementById('aCompleted').value = '';
@@ -388,6 +402,47 @@
         }
     };
 
+    async function detectDemo(){
+        var candidates = [];
+        var saved = localStorage.getItem('sl_api');
+        candidates.push('https://rmj.taild1b3a8.ts.net');
+        if(saved) candidates.push(saved.replace(/\/+$/,''));
+        candidates.push(window.location.origin);
+        for(var i = 0; i < candidates.length; i++){
+            try{
+                var url = candidates[i] + '/api/demo/status';
+                var resp = await fetch(url);
+                if(resp.ok){
+                    var data = await resp.json();
+                    if(data.ok && data.demo){
+                        DEMO_URL = candidates[i];
+                        isDemo = true;
+                        return;
+                    }
+                }
+            } catch(e){}
+        }
+    }
+
+    function applyDemoUI(){
+        if(!isDemo) return;
+        var badge = document.querySelector('.badge');
+        if(badge) badge.textContent = '\u516c\u5f00\u6f14\u793a\u6a21\u5f0f';
+        var addPanel = document.getElementById('panel-add');
+        if(addPanel){
+            var projectFg = addPanel.querySelectorAll('.fg')[1];
+            if(projectFg) projectFg.style.display = 'none';
+        }
+        var cfgSection = document.querySelectorAll('.cfg-section')[0];
+        if(cfgSection){
+            var note = document.createElement('div');
+            note.className = 'msg msg-info';
+            note.style.marginBottom = '12px';
+            note.textContent = '\u6f14\u793a\u6a21\u5f0f\uff1a\u540e\u7aef\u5730\u5740\u5df2\u81ea\u52a8\u914d\u7f6e\uff0c\u5199\u5165\u64cd\u4f5c\u53d7\u9650\u6d41\u4fdd\u62a4\u3002';
+            cfgSection.parentNode.insertBefore(note, cfgSection);
+        }
+    }
+
     function init(){
         var today = new Date();
         var mon = new Date(today);
@@ -408,8 +463,11 @@
         var savedKey = localStorage.getItem('sl_key');
         if(savedKey) document.getElementById('cfgKey').value = savedKey;
 
-        checkHealth();
-        loadProjects();
+        detectDemo().then(function(){
+            if(isDemo) applyDemoUI();
+            checkHealth();
+            loadProjects();
+        });
     }
 
     if(document.readyState === 'loading'){
