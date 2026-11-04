@@ -1,284 +1,174 @@
 # 研习周记
 
-基于 seekdb (OceanBase 嵌入式引擎) 的个人学习/科研记录工具。
+基于 Flask + OceanBase seekdb 的学习与科研记录工具。
 
-## 功能特性
+## 项目简介
 
-1. **新增记录** — 日期、项目、完成事项、遇到的问题、下一步计划
-2. **查询记录** — 按日期范围、项目、关键词筛选
-3. **生成周报** — 按项目汇总，支持复制/下载 Markdown
-4. **JSON API** — 提供 RESTful API 接口，支持前后端分离部署
+研习周记解决学习与科研记录分散、查询困难、
+手工整理周报耗时的问题。
+
+核心功能：
+1. 新增学习/科研记录
+2. 按项目、日期和关键词筛选记录
+3. 自动生成 Markdown 周报
+4. 通过 seekdb 持久化存储和查询数据
+
+项目主要开发、调试和测试工作通过 Qoder CLI 完成。
+
+## 项目地址
+
+Qoder Sites 公开展示页：
+https://studylog-86sb51dc8lq.qoder.zone
+
+GitHub：
+https://github.com/roumianji/ob2026-powercontext
+
+分支：2026-competition-ecosystem
+
+## 运行环境
+
+- Python 3.12（已验证）
+- Flask 3.1.1
+- pylibseekdb 1.4.0.post2
+- PyMySQL 1.2.0
+- Linux / WSL2 Ubuntu（已验证）
 
 ## 快速启动
 
-### 本地运行
+克隆项目：
 
 ```bash
-cd qoder/studylog
+git clone -b 2026-competition-ecosystem \
+  https://github.com/roumianji/ob2026-powercontext.git
 
-# 创建虚拟环境（首次）
+cd ob2026-powercontext/qoder/studylog
+```
+
+安装依赖：
+
+```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
-
-# 写入示例数据（首次）
-.venv/bin/python seed_data.py
-
-# 启动应用
-.venv/bin/python app.py
 ```
 
-浏览器打开 **http://127.0.0.1:5100**
-
-### 公网部署（分离式架构）
-
-由于 Qoder Sites 不支持 Python 后端，需要采用前后端分离部署：
-
-```
-┌─────────────────────────────────────┐
-│  Qoder Sites (前端)                  │
-│  https://studylog-xxx.qoder.zone    │
-└──────────────┬──────────────────────┘
-               │ HTTP API
-               ▼
-┌─────────────────────────────────────┐
-│  云服务器 (后端)                      │
-│  Flask + seekdb                      │
-│  https://api.yourdomain.com         │
-└─────────────────────────────────────┘
-```
-
-**部署步骤：**
-
-1. **准备云服务器**（阿里云 ECS / 腾讯云 CVM / 自建服务器）
-   - 安装 Python 3.10+
-   - 开放 443 端口（HTTPS）
-
-2. **部署后端**
-   ```bash
-   # 在服务器上
-   git clone <your-repo>
-   cd qoder/studylog
-   
-   python3 -m venv .venv
-   .venv/bin/pip install -r requirements.txt
-   .venv/bin/python seed_data.py
-   
-   # 使用 systemd 或 supervisor 管理进程
-   # 或使用 gunicorn
-   .venv/bin/gunicorn -w 4 -b 0.0.0.0:5100 app:app
-   ```
-
-3. **配置 Nginx 反向代理 + HTTPS**
-   ```nginx
-   server {
-       listen 443 ssl;
-       server_name api.yourdomain.com;
-       
-       ssl_certificate /path/to/cert.pem;
-       ssl_certificate_key /path/to/key.pem;
-       
-       location / {
-           proxy_pass http://127.0.0.1:5100;
-           proxy_set_header Host $host;
-           proxy_set_header X-Real-IP $remote_addr;
-       }
-   }
-   ```
-
-4. **配置 CORS**（允许前端域名访问）
-   
-   在 `app.py` 中添加：
-   ```python
-   from flask_cors import CORS
-   CORS(app, resources={r"/api/*": {"origins": "https://studylog-xxx.qoder.zone"}})
-   ```
-
-5. **修改前端调用远程 API**
-   
-   更新 `site/index.html` 中的 API 调用地址。
-
-6. **重新发布 Qoder Sites**
-   ```bash
-   # 使用 sites CLI 重新发布
-   ```
-
-## API 文档
-
-### 健康检查
-
-```http
-GET /health
-```
-
-响应：
-```json
-{
-  "status": "healthy",
-  "database": {"engine": "seekdb", "version": "5.7.25-OceanBase seekdb-v1.4.0.0"},
-  "record_count": 12,
-  "timestamp": "2026-11-03T10:30:00"
-}
-```
-
-### 查询记录
-
-```http
-GET /api/logs?project=OceanBase竞赛&keyword=seekdb&date_from=2026-10-01&date_to=2026-10-31
-```
-
-响应：
-```json
-{
-  "ok": true,
-  "data": [...],
-  "count": 5
-}
-```
-
-### 新增记录
-
-```http
-POST /api/logs
-Content-Type: application/json
-
-{
-  "log_date": "2026-11-03",
-  "project": "OceanBase竞赛",
-  "completed": "完成 API 开发",
-  "problems": "",
-  "next_plan": "部署到云服务器"
-}
-```
-
-响应：
-```json
-{
-  "ok": true,
-  "id": 13,
-  "message": "记录 #13 已保存"
-}
-```
-
-### 获取项目列表
-
-```http
-GET /api/projects
-```
-
-响应：
-```json
-{
-  "ok": true,
-  "data": ["OceanBase竞赛", "论文阅读", "课程作业"]
-}
-```
-
-## 技术栈
-
-- **后端**: Python 3.10+ + Flask
-- **数据库**: seekdb (pylibseekdb + PyMySQL)
-- **前端**: 原生 HTML/CSS/JavaScript
-- **部署**: Qoder Sites (前端) + 云服务器 (后端)
-
-## 验证步骤
-
-### 自动化测试
+使用独立的演示数据库：
 
 ```bash
-# 运行完整测试套件（21 项测试）
-.venv/bin/python test_comprehensive.py
-
-# 运行基础验证（7 项测试，需要应用运行）
-.venv/bin/python verify.py
+mkdir -p data
+export STUDYLOG_DB_PATH="$PWD/data/review_demo.seekdb"
+export STUDYLOG_DEMO_MODE=1
+unset STUDYLOG_API_KEY
 ```
 
-### 手动验证
+启动本地服务：
 
-| 验证项 | 操作 | 预期结果 |
-|--------|------|----------|
-| 新增记录 | 访问 /add，填写表单提交 | 跳转首页，显示"记录 #N 已保存" |
-| 查询筛选 | 首页选择项目/日期/关键词 | 只显示匹配记录 |
-| 数据持久化 | 停止并重启 app.py | 之前写入的记录仍然存在 |
-| 生成周报 | 访问 /report，选择日期范围 | 按项目汇总显示，可复制/下载 Markdown |
-| seekdb 引擎 | 查看首页底部 | 显示 `seekdb` 引擎和版本号 |
-| 健康检查 | `curl http://127.0.0.1:5100/health` | 返回 JSON，status=healthy |
-| API 查询 | `curl http://127.0.0.1:5100/api/logs` | 返回 JSON 记录列表 |
-
-## 目录结构
-
-```
-qoder/studylog/
-├── app.py                    # Flask 主应用（Web + API）
-├── database.py               # seekdb 连接与 CRUD
-├── seed_data.py              # 示例数据写入脚本
-├── verify.py                 # 基础验证脚本（7 项）
-├── test_comprehensive.py     # 完整测试套件（21 项）
-├── requirements.txt          # Python 依赖
-├── README.md                 # 本文档
-├── TECHNICAL_ANALYSIS.md     # 技术分析与部署方案
-├── .gitignore
-├── templates/                # HTML 模板
-│   ├── base.html
-│   ├── index.html            # 查询页
-│   ├── add.html              # 新增页
-│   └── report.html           # 周报页
-├── site/                     # Qoder Sites 前端（待改造）
-│   └── index.html
-└── data/                     # seekdb 数据文件（gitignore）
-    └── studylog.seekdb
+```bash
+.venv/bin/python -m flask --app app run \
+  --host 127.0.0.1 --port 5100 --no-reload
 ```
 
-## 已知限制
+访问：
 
-1. **Qoder Sites 不支持 Python 后端**
-   - Qoder Sites Functions 运行在 Deno (JavaScript/TypeScript) 环境
-   - seekdb 是 Python 嵌入式数据库，无法在 Deno 中运行
-   - 需要采用前后端分离架构，后端部署到独立服务器
+- http://127.0.0.1:5100/
+- http://127.0.0.1:5100/app
+- http://127.0.0.1:5100/health
 
-2. **当前状态**
-   - ✅ 本地 Flask + seekdb 应用完全可用
-   - ✅ 所有核心功能已实现并验证
-   - ✅ 提供 JSON API 接口
-   - ⚠️ Qoder Sites 前端为静态展示页，未调用真实后端
-   - ❌ 需要部署云服务器才能实现公网完整功能
+以上是本地复现方式，不需要购买云服务器。
 
-## 故障排查
+## 最小功能验证
 
-### 数据库连接失败
+另开一个终端，执行：
 
-```
-RuntimeError: Install requirements first: pip install -r requirements.txt
+### 1. 检查数据库
+
+```bash
+curl http://127.0.0.1:5100/health
 ```
 
-**解决：** 确保已安装 `pylibseekdb` 和 `pymysql`。
+预期：status 为 healthy，数据库引擎为 seekdb。
 
-### 端口被占用
+### 2. 写入一条演示记录
 
+```bash
+curl -X POST http://127.0.0.1:5100/api/demo/logs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "log_date":"2026-11-04",
+    "completed":"完成 seekdb 功能验证",
+    "problems":"",
+    "next_plan":"生成周报"
+  }'
 ```
-OSError: [Errno 98] Address already in use
+
+预期：返回 ok=true 和新记录 ID。
+
+### 3. 查询刚才写入的数据
+
+```bash
+curl -G http://127.0.0.1:5100/api/logs \
+  --data-urlencode "keyword=完成 seekdb 功能验证"
 ```
 
-**解决：** 修改 `app.py` 中的端口号，或停止占用端口的进程。
+预期：返回刚才写入的记录。
 
-### 数据丢失
+### 4. 生成周报
 
-**检查：**
-1. 确认 `data/studylog.seekdb` 文件存在
-2. 检查文件权限
-3. 查看日志中的错误信息
+```bash
+curl -G http://127.0.0.1:5100/api/report \
+  --data-urlencode "date_from=2026-11-04" \
+  --data-urlencode "date_to=2026-11-04"
+```
 
-## 开发记录
+预期：返回包含对应记录的 Markdown 周报。
 
-- **2026-11-02**: 初始版本，完成 Flask + seekdb 后端开发
-- **2026-11-03**: 加强测试套件（21 项测试全部通过）
-- **2026-11-03**: 添加 JSON API 接口和健康检查端点
-- **2026-11-03**: 完善错误处理和日志记录
-- **2026-11-03**: 编写技术分析和部署文档
+### 5. 数据持久化
 
-## 许可证
+停止 Flask，使用相同的
+STUDYLOG_DB_PATH 重新启动。
 
-本项目为 OceanBase 2026 竞赛作品。
+再次查询记录，预期原始记录仍然存在。
 
-## 联系方式
+## 技术结合说明
 
-如有问题或建议，请通过 GitHub Issues 反馈。
+本项目使用真实的 OceanBase seekdb 作为业务数据库。
+
+- 新增记录：写入 seekdb
+- 查询筛选：从 seekdb 查询记录
+- 周报生成：读取 seekdb 数据并按项目汇总
+- 持久化：程序重启后数据仍然保留
+
+数据库操作由 database.py 实现。
+
+项目不使用 SQLite、JSON 文件或浏览器本地存储
+替代 seekdb 业务数据库。
+
+## 自动化验证
+
+项目包含：
+
+- verify.py：基础验证脚本
+- test_comprehensive.py：综合测试脚本
+
+开发环境中综合测试曾完成 21/21 项验证。
+这些测试可能写入数据，应在独立测试数据库中运行。
+
+## 部署说明
+
+Qoder Sites 主要承担作品展示和评审入口。
+
+Flask + seekdb 可以按以上说明在本地运行。
+
+项目还实现了前后端分离版本和公网演示方案。
+目前独立公网演示依赖运行中的 WSL 主机，
+不保证全天候在线。
+
+详细部署说明见 DEPLOYMENT.md。
+该文件包含早期云服务器部署方案，
+不是本地基础验收的前置要求。
+
+## Qoder 开发记录
+
+项目由 Qoder CLI 参与需求拆解、代码生成、
+测试、API 开发及安全改进。
+
+开发过程截图与会话记录作为赛事材料另行提交。
