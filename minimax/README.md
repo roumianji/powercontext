@@ -1,52 +1,166 @@
-# MiniMax SDD 课程作业：第一阶段初始工程
+# MiniMax × OceanBase：SDD 上下文管理系统
 
-这是可运行的初始业务工程、规格和固定测试集。它不是完成版提交。
-seekdb/OceanBase、MiniMax、PowerContext 的实际接入与使用记录将在后续阶段补齐。
+## 一、项目简介
 
-## 环境
+本项目是 OceanBase 2026 课程竞赛 MiniMax 赛题的实现。
 
-Python 3.12，当前阶段只使用 Python 标准库，没有第三方依赖。
-将压缩包内容解压到比赛仓库的 minimax/ 目录；目录中应直接出现 demo_app/、tests/ 等。
-虚拟环境继续使用已有的 .venv；此包不含虚拟环境，也不改 Git 远程地址。
+开发任务：为任务列表增加 status 筛选，保持已有功能。
 
-## 修改前测试
+使用三项核心技术：
+
+- MiniMax：实际生成业务代码修改
+- seekdb：存储和检索规格、代码、测试及数据
+- PowerContext：保存和跨进程恢复开发任务状态
+
+## 二、运行环境
+
+- Python 3.12
+- Linux / WSL2
+- pylibseekdb==1.4.0.post2
+- PyMySQL==1.2.0
+- powercontext[builtin]==1.4.1
+- python-dotenv==1.2.4
+
+完整依赖和约束见 requirements-*.txt 及
+requirements-powercontext.lock。
+
+## 三、从零初始化
+
+在仓库 minimax/ 目录执行：
 
 ```bash
-python tools/run_tests.py regression --label before
-python tools/run_tests.py target --label before
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r requirements-minimax.txt
+.venv/bin/python -m context_module ingest
 ```
 
-预期：原有功能 10 个测试通过，退出码 0；新功能 6 个测试以断言失败结束，退出码 1，无环境错误。
-每次运行的命令、退出码、Python 版本、Git 提交和全部源码/测试文件哈希写入 evidence/before/。
-将后续实际运行结果作为证据；此包不包含助手机器上的测试日志。
+程序将六份工程资料导入 seekdb。
 
-## 运行业务程序
+## 四、构造开发上下文
 
 ```bash
-python -m demo_app --port 8088
+.venv/bin/python -m context_module context \
+  --task "给任务列表增加 status 筛选，保持原有功能"
 ```
 
-浏览器访问 http://localhost:8088/tasks，或 http://localhost:8088/tasks?q=论文。
-初始版本访问 /tasks?status=done 仍返回全部任务，正是本次需要修改的行为。
-按 Ctrl+C 停止。示例数据来自 data/tasks.json，内存数据在重启时重新载入。
+输出包括：
+- 适用规格 KEEP-001～005、STATUS-001～004
+- 相关业务代码 demo_app/service.py
+- 接口代码 demo_app/__main__.py
+- 目标测试 tests/test_target.py
+- 回归测试 tests/test_regression.py
+- 初始数据 data/tasks.json
 
-## 后续任务
+上下文来自 seekdb 实际查询结果。
 
-1. 将必要规格、代码、测试导入 seekdb/OceanBase，并通过真实查询组装上下文。
-2. 将实际查询得到的上下文提供给 MiniMax，仅修改业务实现并记录过程。
-3. 用相同的目标测试和回归测试运行 after 验证，保存代码差异和修改后快照。
-4. 用 PowerContext 保存任务记录，另一个进程重启后读取并用于后续上下文。
-5. 演示规格更新和重新导入，核对输出确实使用新内容。
-6. 整理依赖锁定、初始化/重置方法、技术使用记录和一页技术说明。
+## 五、运行验证测试
 
-## 代码来源
+```bash
+.venv/bin/python tools/run_tests.py target --label after
+.venv/bin/python tools/run_tests.py regression --label after
+```
 
-此示例由 ChatGPT 辅助为本课程作业新建，不是第三方业务项目的复刻。
-初始版本未使用 MiniMax 生成；MiniMax 实际代码修改记录须在后续真实运行中产生。
-官方比赛模板：https://github.com/oceanbase/powercontext/tree/2026-competition-ecosystem。
-使用其同名分支作为 Git 基线；本包仅提供 minimax/ 内的文件，不含 Git 历史。
+预期结果：
+- 目标测试：6/6 通过
+- 回归测试：10/10 通过
 
-## 修改前快照
+修改前测试结果保存在 evidence/before/。
+修改前代码保存在 snapshots/before/。
+修改后代码为 demo_app/service.py。
 
-snapshots/before/ 保存原始业务代码、规格、测试和数据。后续恢复业务代码时使用此目录，
-保持 tests/ 不变。before_manifest.json 提供每个快照文件的 SHA-256。
+修改前目标测试因缺少 status 功能而失败，
+原有回归测试通过。修改前后使用相同测试文件。
+
+## 六、PowerContext 状态保存和恢复
+
+完成上下文初始化与测试后：
+
+```bash
+.venv/bin/python -m task_state checkpoint --phase after
+```
+
+再启动一个新进程执行：
+
+```bash
+.venv/bin/python -m task_state resume
+```
+
+恢复的任务进度会用于后续上下文。
+
+## 七、MiniMax 实际代码修改
+
+模型：MiniMax-M3.1-Flash
+
+调用方式：Anthropic-compatible Messages HTTP API
+
+完整证据位于 evidence/minimax/，包括：
+- input_context.json：实际提供的上下文
+- request_body.json：请求内容
+- response_text.txt：模型公开文本响应
+- code.diff：代码修改差异
+- before/ 和 after/：修改前后源码
+- record.json：模型调用与验证记录
+
+核对已有记录不需要重新调用模型。
+
+如需再次生成代码，可在初始化环境并配置有效
+MiniMax API Key 后运行：
+
+```bash
+.venv/bin/python -m coding_assistant configure
+.venv/bin/python -m coding_assistant run
+```
+
+重新调用可能产生 API 费用，并修改业务代码。
+正常复现已有结果不需要执行这两条命令。
+
+## 八、规格更新验证
+
+修改 specs/task_list.md 中的规格内容，然后执行：
+
+```bash
+.venv/bin/python -m context_module ingest
+.venv/bin/python -m context_module context \
+  --task "给任务列表增加 status 筛选，保持原有功能"
+```
+
+本次实验已验证 STATUS-001 增加状态值区分大小写
+的说明后，重新检索可以获取更新后的内容。
+
+查询及导入证据保存在 evidence/database/
+和 evidence/context/。
+
+## 九、重置及运行说明
+
+本地运行状态保存在 .runtime/，不会提交至 Git。
+
+如需从空状态重新初始化：
+
+```bash
+rm -rf .runtime/
+.venv/bin/python -m context_module ingest
+```
+
+然后重新运行上下文检索、测试、checkpoint 和 resume。
+
+业务演示程序可通过以下命令启动：
+
+```bash
+.venv/bin/python -m demo_app --port 8088
+```
+
+访问 http://localhost:8088/tasks 。
+
+## 十、已知限制
+
+- 当前依赖 Linux 兼容运行环境和 Python 3.12。
+- seekdb 使用 pylibseekdb 本地运行时。
+- PowerContext 使用 SQLite 持久化后端。
+- MiniMax 实际代码生成需要网络和有效 API Key。
+- 不提交真实密钥、本地数据库和虚拟环境。
+
+## 十一、技术说明
+
+详见 docs/technical_report.md。
+
+源码、实验结果和技术使用记录均在 minimax/ 目录中。
