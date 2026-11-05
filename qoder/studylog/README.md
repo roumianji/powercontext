@@ -21,7 +21,7 @@ Qoder Sites 公开展示页：
 https://studylog-86sb51dc8lq.qoder.zone
 
 GitHub：
-https://github.com/roumianji/ob2026-powercontext
+https://github.com/roumianji/powercontext
 
 分支：2026-competition-ecosystem
 
@@ -39,7 +39,7 @@ https://github.com/roumianji/ob2026-powercontext
 
 ```bash
 git clone -b 2026-competition-ecosystem \
-  https://github.com/roumianji/ob2026-powercontext.git
+  https://github.com/roumianji/powercontext.git
 
 cd ob2026-powercontext/qoder/studylog
 ```
