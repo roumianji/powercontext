@@ -1,0 +1,23 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Stepfun · 端侧知识库</title></head><body>
+<header><h1>Stepfun · 端侧 AI 知识库</h1><p>浏览器本地向量化 · seekdb 向量 + 全文混合检索 · RRF 排序</p></header>
+<main>
+<section class="card"><h2>01 · 运行环境</h2>
+<div class="fields"><label>推理模式<br><select id="mode"><option value="optimized">优化：WebGPU FP16 / WASM INT8</option><option value="baseline">基线：FP32</option></select></label><label>运行后端<br><select id="backend-policy"><option value="auto">自动：WebGPU 优先</option><option value="wasm">仅 WASM（验证 CPU 路径）</option></select></label><button id="load">加载本地模型</button><label>当前推理后端<br><span class="pill" id="backend">尚未加载</span></label></div>
+<div id="model-status" class="status">模型从本机目录加载并在浏览器执行推理；文档与向量写入本机 seekdb。</div><div class="stats" id="model-stats"></div></section>
+<section class="card"><h2>02 · 知识库 / 增量导入</h2>
+<div class="fields"><label>知识库 ID（小写英文）<br><input type="text" id="kb" value="demo" maxlength="30" pattern="[a-z][a-z0-9_]*"></label><label>已有集合<br><select id="collections"><option value="">选择已有集合</option></select></label><button class="secondary" id="refresh-collections">刷新列表</button></div>
+<p><small>不同精度对应不同的 seekdb 集合，避免混用向量。切换精度后需重新导入同一份语料才能公平比较。</small></p>
+<div class="fields"><label>导入 .txt / .md 文档（可多选）<br><input type="file" id="files" accept=".txt,.md,text/plain,text/markdown" multiple></label><label>批大小<br><select id="batch"><option>4</option><option selected>8</option><option>16</option><option>32</option></select></label><button id="import">开始向量化并导入</button></div>
+<div id="import-status" class="status">请先加载模型，再选择文本文件。上传到 seekdb 的数据包含原文、元数据和已经算好的向量，不会将文本交给服务端推理。</div><div class="stats" id="import-stats"></div></section>
+<section class="card"><h2>03 · 混合检索</h2><label>自然语言查询<br><textarea id="query" placeholder="例如：How to refresh a vector index in seekdb?"></textarea></label>
+<div class="toolbar"><button id="search">seekdb 混合检索</button><small>全文 + 向量在数据库端融合；不做前端召回拼接</small></div><div id="search-status" class="status">输入查询后点击检索</div><div class="stats" id="search-stats"></div><div id="results"></div></section>
+<section class="card"><h2>04 · 可复现性能测评</h2>
+<p class="meta">先导入固定语料，再运行相同查询。扩展集为项目自建英文合成回归集，含近邻干扰文档；不代表公开标准基准或中文检索质量。</p>
+<div class="fields"><label>固定测评集<br><select id="suite"><option value="extended">扩展：60 文档 / 40 查询</option><option value="smoke">冒烟：5 文档 / 5 查询</option></select></label><label>正式测量轮数<br><select id="rounds"><option>1</option><option selected>3</option><option>5</option></select></label><button class="secondary" id="import-suite">导入固定测评语料</button><button id="benchmark">运行当前配置测评</button></div>
+<p><small>每轮先核对集合内容，预热 3 次后记录正式查询的 P50 / P95、Recall@5、nDCG@5。模型加载和预热均不混入热态延迟。</small></p>
+<div class="toolbar"><button id="matrix">自动运行三组对照</button><button class="secondary" id="export">导出全部日志 JSON</button></div>
+<div id="matrix-status" class="status">自动对照依次运行 FP32、优化配置、仅 WASM 的 INT8 配置：加载、导入、预热和测评。不会删除已有知识库。</div>
+<div class="status" id="benchmark-status">尚未测试</div><div class="meta" id="log-status"></div>
+<div class="table-scroll"><table><thead><tr><th>实际后端 / 精度</th><th>测评集</th><th>正式查询数</th><th>向量化 P50 ms</th><th>seekdb P50 ms</th><th>端到端 P50 ms</th><th>Recall@5</th><th>nDCG@5</th></tr></thead><tbody id="comparison-body"></tbody></table></div>
+</section>
+</main><script type="module" src="/src/main.js"></script></body></html>

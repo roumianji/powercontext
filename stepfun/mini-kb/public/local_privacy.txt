@@ -1,0 +1,1 @@
+Privacy-sensitive text can be embedded on the user's own device. Transformers.js uses ONNX Runtime Web to perform inference within the browser. Model files may be downloaded from a public repository, but all inference computations remain local. Embeddings and document text are then stored in a locally deployed seekdb database.

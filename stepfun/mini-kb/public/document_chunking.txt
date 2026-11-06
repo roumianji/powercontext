@@ -1,0 +1,1 @@
+Document chunking splits long articles into shorter overlapping passages before embedding. Chunks are useful because embedding models have maximum sequence lengths. A small overlap preserves context near chunk boundaries, while document identifiers and chunk numbers allow the original source to be retrieved. Batch embeddings can improve throughput.

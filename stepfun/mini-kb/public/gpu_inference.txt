@@ -1,0 +1,1 @@
+Modern GPUs accelerate deep learning inference by performing many tensor operations in parallel. WebGPU can run browser models on supported graphics hardware. In unsupported environments, WebAssembly (WASM) allows local CPU inference, often at a lower throughput. Embedding vectors are generated without a cloud inference API.

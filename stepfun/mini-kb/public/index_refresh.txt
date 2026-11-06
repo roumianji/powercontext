@@ -1,0 +1,1 @@
+A seekdb index refresh makes newly inserted embeddings searchable. Vector indexes can build asynchronously. After adding or upserting documents, call the seekdb database index manager refresh routine. The application should verify that its new item is visible through a vector search instead of assuming success from the insert response alone.

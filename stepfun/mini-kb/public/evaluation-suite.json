@@ -1,0 +1,529 @@
+{
+  "id": "local-english-v1",
+  "label": "扩展：60 文档 / 40 查询",
+  "description": "项目自建的英文合成回归集；相关性标注由作者编写，未经独立人工复核，不是公开标准基准。每个主题包含目标文档和两个近邻干扰文档。",
+  "documents": [
+    {
+      "source": "index_refresh_guide.txt",
+      "text": "After an upsert, seekdb may update its vector index asynchronously. Refresh the index, confirm the inserted ID exists, and query the new vector before reporting that import is ready."
+    },
+    {
+      "source": "index_refresh_alternative.txt",
+      "text": "An index backup preserves database files for disaster recovery. Schedule backups and test restoring them into a separate directory."
+    },
+    {
+      "source": "index_refresh_context.txt",
+      "text": "An index rebuild recreates a damaged index. It is an administrative repair operation and is not required after every normal document import."
+    },
+    {
+      "source": "gpu_fp16_guide.txt",
+      "text": "WebGPU runs supported model operations on the browser GPU. FP16 uses half precision weights to reduce weight storage compared with FP32. Actual speed depends on the adapter, supported operators, batch size and warmup."
+    },
+    {
+      "source": "gpu_fp16_alternative.txt",
+      "text": "GPU rasterization draws triangles, textures and page layers. A graphics rendering benchmark does not measure text embedding latency."
+    },
+    {
+      "source": "gpu_fp16_context.txt",
+      "text": "A discrete GPU can consume more power than integrated graphics. Battery life and thermal throttling should be measured separately from model file size."
+    },
+    {
+      "source": "chunk_overlap_guide.txt",
+      "text": "Split long documents into bounded text chunks before embedding. A small overlap preserves context near boundaries. Save source and chunk position so search results can identify the original passage."
+    },
+    {
+      "source": "chunk_overlap_alternative.txt",
+      "text": "A database page is a storage allocation unit managed by the engine. Its size is independent of a text passage boundary."
+    },
+    {
+      "source": "chunk_overlap_context.txt",
+      "text": "A sentence tokenizer locates sentence endings. It does not automatically ensure a passage fits within the embedding model input limit."
+    },
+    {
+      "source": "rrf_guide.txt",
+      "text": "Reciprocal rank fusion combines ranked keyword and vector result lists using rank positions. It does not require the raw scores of both retrieval methods to share a numerical scale. Fusion is executed inside seekdb."
+    },
+    {
+      "source": "rrf_alternative.txt",
+      "text": "Weighted score fusion combines normalized numeric scores using chosen weights. The normalization and calibration of the two score scales matter."
+    },
+    {
+      "source": "rrf_context.txt",
+      "text": "A cross encoder reranker reads a query and passage jointly to rescore candidates. It introduces another inference step after initial retrieval."
+    },
+    {
+      "source": "local_privacy_guide.txt",
+      "text": "Document and query embeddings are computed in a browser worker. The local seekdb API receives text, metadata and vectors for storage and retrieval. This design avoids cloud inference, but it still sends original text to the local API."
+    },
+    {
+      "source": "local_privacy_alternative.txt",
+      "text": "TLS encrypts traffic between endpoints. It protects transport and does not determine whether a model is running on a cloud server or a local device."
+    },
+    {
+      "source": "local_privacy_context.txt",
+      "text": "Access control restricts which user can read stored records. It remains a separate concern from where embedding inference executes."
+    },
+    {
+      "source": "wasm_fallback_guide.txt",
+      "text": "If WebGPU is unavailable or model initialization fails, optimized mode attempts WebAssembly with the INT8 model. To test this path deliberately, select WASM only and run the full import and retrieval workflow."
+    },
+    {
+      "source": "wasm_fallback_alternative.txt",
+      "text": "FP32 baseline can also run with WebAssembly. A baseline run on the CPU is not the same workload environment as a GPU baseline."
+    },
+    {
+      "source": "wasm_fallback_context.txt",
+      "text": "A GPU adapter request checks browser support. An available adapter alone does not prove every model operation will execute successfully."
+    },
+    {
+      "source": "mean_pooling_guide.txt",
+      "text": "Feature extraction returns token representations. Mean pooling aggregates token embeddings into one sentence vector, respecting the attention mask. Normalize the pooled vector before cosine similarity search."
+    },
+    {
+      "source": "mean_pooling_alternative.txt",
+      "text": "Max pooling chooses the largest value for each feature coordinate. Its output differs from the average of token representations."
+    },
+    {
+      "source": "mean_pooling_context.txt",
+      "text": "The classification token is a special token used by some transformer models. Selecting it is a pooling strategy different from masked mean pooling."
+    },
+    {
+      "source": "cosine_guide.txt",
+      "text": "Cosine similarity compares vector direction. For unit normalized vectors, their dot product equals cosine similarity. A cosine distance index ranks smaller distances as more similar; keep the chosen metric consistent."
+    },
+    {
+      "source": "cosine_alternative.txt",
+      "text": "Euclidean distance measures straight line separation. Without normalization, changing a vector magnitude changes this distance."
+    },
+    {
+      "source": "cosine_context.txt",
+      "text": "Manhattan distance adds absolute coordinate differences. It is a different metric from angular or cosine similarity."
+    },
+    {
+      "source": "dimension_guide.txt",
+      "text": "This MiniLM model produces 384 numbers per embedding. Reject missing, non finite or wrong length vectors before database writes. A model with a different dimension needs a compatible collection and a complete reimport."
+    },
+    {
+      "source": "dimension_alternative.txt",
+      "text": "A model hidden layer width is an architectural parameter. Do not assume an arbitrary layer width is the final sentence embedding dimension."
+    },
+    {
+      "source": "dimension_context.txt",
+      "text": "A batch dimension counts independent inputs processed together. Increasing batch size does not increase the length of each output vector."
+    },
+    {
+      "source": "batching_guide.txt",
+      "text": "Batching embeds several passages in one inference call. It may improve throughput by amortizing overhead, but larger batches use more memory. Compare batch sizes on the same corpus and record the actual batch setting."
+    },
+    {
+      "source": "batching_alternative.txt",
+      "text": "Request concurrency runs multiple independent operations at once. It differs from packing inputs into one model batch."
+    },
+    {
+      "source": "batching_context.txt",
+      "text": "Pagination limits records shown in one response. Page size is a retrieval presentation setting rather than an inference batch setting."
+    },
+    {
+      "source": "model_cache_guide.txt",
+      "text": "Browser model caching can reuse downloaded weights across visits. A reload may load a cached file rather than perform a network download. Record cache state and separate model initialization time from steady state inference."
+    },
+    {
+      "source": "model_cache_alternative.txt",
+      "text": "A database buffer cache stores recently accessed data pages. It is separate from the browser cache holding ONNX weight files."
+    },
+    {
+      "source": "model_cache_context.txt",
+      "text": "A result cache can bypass repeated retrieval work. If enabled during a benchmark it changes which database operations are actually measured."
+    },
+    {
+      "source": "idempotent_guide.txt",
+      "text": "Derive a document chunk ID from knowledge base, source filename, chunk number and chunk text using SHA256. Upserting unchanged inputs with these deterministic IDs updates records instead of adding duplicates."
+    },
+    {
+      "source": "idempotent_alternative.txt",
+      "text": "A random UUID is useful for independently created records. Generating a fresh UUID for each repeat import does not deduplicate unchanged chunks."
+    },
+    {
+      "source": "idempotent_context.txt",
+      "text": "A timestamp records when an import happened. Using time as the only identifier causes repeated imports to create new records."
+    },
+    {
+      "source": "precision_isolation_guide.txt",
+      "text": "Store FP32, FP16 and INT8 embeddings in separate collections. Import exactly the same corpus for each profile. A query must use the same model revision, pooling and precision profile as the collection it searches."
+    },
+    {
+      "source": "precision_isolation_alternative.txt",
+      "text": "Splitting collections by customer controls data organization. Tenant separation is a different purpose from separating numeric model precision."
+    },
+    {
+      "source": "precision_isolation_context.txt",
+      "text": "Splitting data by calendar month supports retention policies. It does not establish that query and document embeddings share a compatible model."
+    },
+    {
+      "source": "recall_metric_guide.txt",
+      "text": "Recall at five divides the number of relevant source documents found in the top five chunks by the number of annotated relevant sources. Duplicate chunks from one source do not count as additional relevant documents."
+    },
+    {
+      "source": "recall_metric_alternative.txt",
+      "text": "Precision at five measures how many of five returned results are relevant. It has a different denominator from recall."
+    },
+    {
+      "source": "recall_metric_context.txt",
+      "text": "Classification accuracy counts correct predicted labels. It does not measure whether a search system retrieved all annotated relevant documents."
+    },
+    {
+      "source": "ndcg_metric_guide.txt",
+      "text": "Binary nDCG at five discounts relevant results by their rank and divides by an ideal ranking. Finding a relevant source lower in the list earns less credit. Repeated chunks from the same source receive no extra relevance credit."
+    },
+    {
+      "source": "ndcg_metric_alternative.txt",
+      "text": "Mean reciprocal rank uses the position of the first relevant result. It does not account for all later relevant sources in a ranked list."
+    },
+    {
+      "source": "ndcg_metric_context.txt",
+      "text": "A latency percentile describes response time distribution. A low P95 latency does not prove retrieval quality is high."
+    },
+    {
+      "source": "warmup_guide.txt",
+      "text": "Run warmup queries before collecting measured trials. Keep warmup results separate from reported latency samples. Repeat the same fixed query set over multiple rounds and report sample count, P50 and P95."
+    },
+    {
+      "source": "warmup_alternative.txt",
+      "text": "A cold start includes setup such as model loading, compilation or cache population. It is a useful measurement but should be labeled separately."
+    },
+    {
+      "source": "warmup_context.txt",
+      "text": "A throughput stress test sends requests at a chosen arrival rate. Its latency can include queueing and should not be equated with sequential query timing."
+    },
+    {
+      "source": "offline_weights_guide.txt",
+      "text": "Serve ONNX weights and tokenizer files from the local model directory. Enable local models and disable remote models in Transformers.js. This avoids requesting model weights from Hugging Face during inference initialization."
+    },
+    {
+      "source": "offline_weights_alternative.txt",
+      "text": "A CDN mirror can distribute model files before an offline run. Downloading from a mirror is still a network transfer."
+    },
+    {
+      "source": "offline_weights_context.txt",
+      "text": "A cloud inference endpoint returns model outputs from a remote service. It is architecturally different from serving static weights to a browser."
+    },
+    {
+      "source": "language_scope_guide.txt",
+      "text": "The English MiniLM demonstration corpus and annotations evaluate English retrieval. They do not establish Chinese retrieval quality. A multilingual model change requires validating language coverage and rebuilding compatible embeddings."
+    },
+    {
+      "source": "language_scope_alternative.txt",
+      "text": "Translating interface labels changes how controls are displayed. It does not change the language capability of the embedding model."
+    },
+    {
+      "source": "language_scope_context.txt",
+      "text": "Character encoding such as UTF8 preserves text representation. Correct encoding alone does not guarantee semantic matching across languages."
+    },
+    {
+      "source": "benchmark_identity_guide.txt",
+      "text": "A fair comparison keeps device, browser, model revision, corpus, queries, top k and batch size fixed. Hash the corpus and query annotations so incompatible runs are not silently combined into one speedup claim."
+    },
+    {
+      "source": "benchmark_identity_alternative.txt",
+      "text": "A version number identifies a software release. A version label alone does not prove the evaluated documents and relevance annotations are identical."
+    },
+    {
+      "source": "benchmark_identity_context.txt",
+      "text": "A screenshot captures a visible state. It cannot replace per trial timing records or prove the exact contents of every indexed document."
+    },
+    {
+      "source": "index_durability_guide.txt",
+      "text": "Persistent embedded seekdb stores data under a local database directory. Restarting the API should reopen that directory. Verify collection contents after restart; browser local storage holds measurement logs, not the database itself."
+    },
+    {
+      "source": "index_durability_alternative.txt",
+      "text": "An in memory database discards records when its process exits unless an explicit persistence mechanism is used."
+    },
+    {
+      "source": "index_durability_context.txt",
+      "text": "A browser session variable disappears on page reload. It is neither a persistent database file nor durable benchmark evidence."
+    }
+  ],
+  "queries": [
+    {
+      "id": "q001",
+      "query": "How should an application confirm a newly inserted vector is searchable?",
+      "relevant": [
+        "index_refresh_guide.txt"
+      ]
+    },
+    {
+      "id": "q002",
+      "query": "What must happen between an upsert and announcing that an import is ready?",
+      "relevant": [
+        "index_refresh_guide.txt"
+      ]
+    },
+    {
+      "id": "q003",
+      "query": "What browser technology runs half precision inference on a local graphics processor?",
+      "relevant": [
+        "gpu_fp16_guide.txt"
+      ]
+    },
+    {
+      "id": "q004",
+      "query": "Does using FP16 on a GPU guarantee faster inference in every workload?",
+      "relevant": [
+        "gpu_fp16_guide.txt"
+      ]
+    },
+    {
+      "id": "q005",
+      "query": "Why retain a little shared text between neighboring document chunks?",
+      "relevant": [
+        "chunk_overlap_guide.txt"
+      ]
+    },
+    {
+      "id": "q006",
+      "query": "Which metadata helps a search result identify its original passage?",
+      "relevant": [
+        "chunk_overlap_guide.txt"
+      ]
+    },
+    {
+      "id": "q007",
+      "query": "Which fusion method combines retrieval rankings without comparable score scales?",
+      "relevant": [
+        "rrf_guide.txt"
+      ]
+    },
+    {
+      "id": "q008",
+      "query": "How can keyword and semantic search rankings be combined inside the database?",
+      "relevant": [
+        "rrf_guide.txt"
+      ]
+    },
+    {
+      "id": "q009",
+      "query": "Does avoiding cloud inference mean original text never leaves the browser?",
+      "relevant": [
+        "local_privacy_guide.txt"
+      ]
+    },
+    {
+      "id": "q010",
+      "query": "Where are embeddings computed and what does the local database API receive?",
+      "relevant": [
+        "local_privacy_guide.txt"
+      ]
+    },
+    {
+      "id": "q011",
+      "query": "How can the no WebGPU execution path be deliberately tested?",
+      "relevant": [
+        "wasm_fallback_guide.txt"
+      ]
+    },
+    {
+      "id": "q012",
+      "query": "Which runtime and precision are used by the optimized CPU fallback?",
+      "relevant": [
+        "wasm_fallback_guide.txt"
+      ]
+    },
+    {
+      "id": "q013",
+      "query": "How are token representations reduced to a normalized sentence vector?",
+      "relevant": [
+        "mean_pooling_guide.txt"
+      ]
+    },
+    {
+      "id": "q014",
+      "query": "What pooling operation produces one embedding for a text passage?",
+      "relevant": [
+        "mean_pooling_guide.txt"
+      ]
+    },
+    {
+      "id": "q015",
+      "query": "What does a dot product equal when both vectors have unit length?",
+      "relevant": [
+        "cosine_guide.txt"
+      ]
+    },
+    {
+      "id": "q016",
+      "query": "Which vector comparison focuses on direction rather than magnitude?",
+      "relevant": [
+        "cosine_guide.txt"
+      ]
+    },
+    {
+      "id": "q017",
+      "query": "What validation is needed before writing a 384 dimensional embedding?",
+      "relevant": [
+        "dimension_guide.txt"
+      ]
+    },
+    {
+      "id": "q018",
+      "query": "Can a model with another embedding dimension reuse an existing index unchanged?",
+      "relevant": [
+        "dimension_guide.txt"
+      ]
+    },
+    {
+      "id": "q019",
+      "query": "Why can embedding several passages together improve throughput?",
+      "relevant": [
+        "batching_guide.txt"
+      ]
+    },
+    {
+      "id": "q020",
+      "query": "What resource tradeoff must be checked before increasing inference batch size?",
+      "relevant": [
+        "batching_guide.txt"
+      ]
+    },
+    {
+      "id": "q021",
+      "query": "Why does a browser reload not prove that a model was downloaded again?",
+      "relevant": [
+        "model_cache_guide.txt"
+      ]
+    },
+    {
+      "id": "q022",
+      "query": "Which timing should be kept separate from steady state inference?",
+      "relevant": [
+        "model_cache_guide.txt"
+      ]
+    },
+    {
+      "id": "q023",
+      "query": "How can repeated imports of identical chunks avoid duplicate records?",
+      "relevant": [
+        "idempotent_guide.txt"
+      ]
+    },
+    {
+      "id": "q024",
+      "query": "Which fields should contribute to a deterministic document chunk identifier?",
+      "relevant": [
+        "idempotent_guide.txt"
+      ]
+    },
+    {
+      "id": "q025",
+      "query": "Why should different model precisions use separate vector collections?",
+      "relevant": [
+        "precision_isolation_guide.txt"
+      ]
+    },
+    {
+      "id": "q026",
+      "query": "Which model properties must match between stored vectors and query embeddings?",
+      "relevant": [
+        "precision_isolation_guide.txt"
+      ]
+    },
+    {
+      "id": "q027",
+      "query": "How should duplicate chunks from one relevant source affect Recall at five?",
+      "relevant": [
+        "recall_metric_guide.txt"
+      ]
+    },
+    {
+      "id": "q028",
+      "query": "What denominator is used to compute retrieval recall from source annotations?",
+      "relevant": [
+        "recall_metric_guide.txt"
+      ]
+    },
+    {
+      "id": "q029",
+      "query": "Which quality metric rewards relevant search results appearing near the top?",
+      "relevant": [
+        "ndcg_metric_guide.txt"
+      ]
+    },
+    {
+      "id": "q030",
+      "query": "Why can a search have perfect recall but lower nDCG?",
+      "relevant": [
+        "ndcg_metric_guide.txt"
+      ]
+    },
+    {
+      "id": "q031",
+      "query": "Should warmup requests be included in the reported steady state latency samples?",
+      "relevant": [
+        "warmup_guide.txt"
+      ]
+    },
+    {
+      "id": "q032",
+      "query": "What procedure makes repeated inference latency measurements easier to reproduce?",
+      "relevant": [
+        "warmup_guide.txt"
+      ]
+    },
+    {
+      "id": "q033",
+      "query": "How can model initialization avoid downloading weights from a remote hub?",
+      "relevant": [
+        "offline_weights_guide.txt"
+      ]
+    },
+    {
+      "id": "q034",
+      "query": "What files besides ONNX weights are needed for local text embedding initialization?",
+      "relevant": [
+        "offline_weights_guide.txt"
+      ]
+    },
+    {
+      "id": "q035",
+      "query": "Can an English only retrieval evaluation establish Chinese language quality?",
+      "relevant": [
+        "language_scope_guide.txt"
+      ]
+    },
+    {
+      "id": "q036",
+      "query": "What must change when replacing the embedding model with a multilingual one?",
+      "relevant": [
+        "language_scope_guide.txt"
+      ]
+    },
+    {
+      "id": "q037",
+      "query": "How can a report detect that two runs used different corpora or queries?",
+      "relevant": [
+        "benchmark_identity_guide.txt"
+      ]
+    },
+    {
+      "id": "q038",
+      "query": "Which settings must remain fixed for a fair precision comparison?",
+      "relevant": [
+        "benchmark_identity_guide.txt"
+      ]
+    },
+    {
+      "id": "q039",
+      "query": "Where should an embedded database reopen its records after the API restarts?",
+      "relevant": [
+        "index_durability_guide.txt"
+      ]
+    },
+    {
+      "id": "q040",
+      "query": "Does browser local storage contain the actual seekdb vector index?",
+      "relevant": [
+        "index_durability_guide.txt"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "name": "stepfun-browser-seekdb-kb",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c green,cyan \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "node server/index.js --watch",
+    "dev:web": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "check": "node scripts/check.js",
+    "test": "node --test scripts/metrics.test.js",
+    "report": "node scripts/report.js",
+    "models": "node scripts/prepare-models.mjs",
+    "models:verify": "node scripts/prepare-models.mjs --verify-only",
+    "predev": "npm run models",
+    "prebuild": "npm run models",
+    "prestart": "npm run models"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "3.8.1",
+    "express": "^4.21.2",
+    "seekdb": "1.4.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "vite": "^6.2.0"
+  }
+}

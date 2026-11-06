@@ -1,0 +1,1 @@
+Hybrid search combines semantic vector similarity with full-text keyword matching in the database. Reciprocal Rank Fusion, also called RRF, merges rankings into a single ordered result. Seekdb offers hybridSearch so the database can perform query fusion directly. The client must not independently fetch two ranked result lists and merge them in JavaScript.
